@@ -14,7 +14,7 @@ test('creates a task, renames it, and completes it', async () => {
   const row = window.locator('.nib-task-row', { hasText: 'Water the plants' });
   await expect(row).toBeVisible();
 
-  await row.locator('input[type="checkbox"]').check();
+  await row.locator('input[type="checkbox"]').click();
   await expect(row.locator('.nib-task-row-title')).toHaveAttribute('data-done', 'true');
 
   await app.close();
@@ -30,12 +30,14 @@ test('a daily habit shows its occurrence and starts a streak', async () => {
 
   await window.locator('.nib-recur select').first().selectOption('daily');
   await expect(window.locator('.nib-recur-text')).toContainText('every day');
-  await window.locator('.nib-task-detail-habit input').check();
+  const habitToggle = window.locator('.nib-task-detail-habit input');
+  await habitToggle.click();
+  await expect(habitToggle).toBeChecked();
 
   const row = window.locator('.nib-task-row', { hasText: 'Morning stretch' });
   await expect(row.locator('.nib-task-chip', { hasText: '↻' })).toBeVisible();
 
-  await row.locator('input[type="checkbox"]').check();
+  await row.locator('input[type="checkbox"]').click();
   await expect(row.locator('.nib-task-chip-streak')).toHaveText('🔥 1');
 
   await app.close();
