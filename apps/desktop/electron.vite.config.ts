@@ -23,6 +23,14 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin({ exclude: workspacePackages })],
+    build: {
+      rollupOptions: {
+        input: {
+          index: resolve(__dirname, 'src/preload/index.ts'),
+          plugin: resolve(__dirname, 'src/preload/plugin.ts'),
+        },
+      },
+    },
   },
   renderer: {
     plugins: [react()],

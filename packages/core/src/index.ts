@@ -31,6 +31,12 @@ export {
 export { createScheduler, type JobHandler, type ScheduleJobInput, type Scheduler } from './scheduler';
 export { createServiceRegistry, type ServiceHandler, type ServiceRegistry } from './services';
 export {
+  describePermission,
+  hostAllowed,
+  isSensitivePermission,
+  networkDomains,
+} from '@nib/plugin-api';
+export {
   createCommandRegistry,
   type CommandInfo,
   type CommandRegistry,

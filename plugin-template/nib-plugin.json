@@ -1,0 +1,12 @@
+{
+  "id": "com.example.word-count",
+  "name": "Word Count",
+  "version": "0.1.0",
+  "minAppVersion": "0.1.0",
+  "description": "A tiny example plugin: adds a command that tallies words across your notes.",
+  "author": "Your Name",
+  "permissions": ["records:read:note"],
+  "contributes": {
+    "commands": [{ "id": "count-words", "title": "Word Count: tally words in all notes" }]
+  }
+}

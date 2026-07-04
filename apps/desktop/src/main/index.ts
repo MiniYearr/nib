@@ -8,12 +8,25 @@ import tvmazePlugin from '@nib/plugin-media-tvmaze';
 import notepadPlugin from '@nib/plugin-notepad';
 import todoPlugin from '@nib/plugin-todo';
 import samplePlugin from '@nib/plugin-sample';
+import { trustedContents } from './broadcast';
 import { registerCoreCommands } from './core-commands';
 import { registerIpc } from './ipc';
 import { createOverlayWindow } from './overlay';
+import { ThirdPartyPluginHost } from './plugin-host';
 import { runSmokeTest } from './smoke';
 
 let core: NibCore | undefined;
+let pluginHost: ThirdPartyPluginHost | undefined;
+
+const firstPartyPlugins = [
+  notepadPlugin,
+  todoPlugin,
+  diaryPlugin,
+  assistantPlugin,
+  anilistPlugin,
+  tvmazePlugin,
+  samplePlugin,
+];
 
 const userDataOverride = process.env['NIB_USER_DATA'];
 if (userDataOverride) app.setPath('userData', userDataOverride);
@@ -33,6 +46,18 @@ function createMainWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  // Capture the id up front — reading window.webContents after 'closed' throws
+  // ("Object has been destroyed") and would wedge app shutdown.
+  const contentsId = window.webContents.id;
+  trustedContents.add(contentsId);
+  window.on('closed', () => {
+    trustedContents.delete(contentsId);
+    // The main window is the app: closing it quits. Tear down hidden plugin and
+    // overlay windows first so nothing keeps the process alive.
+    pluginHost?.stopAll();
+    if (process.platform !== 'darwin') app.quit();
   });
 
   window.once('ready-to-show', () => window.show());
@@ -55,15 +80,7 @@ void app.whenReady().then(async () => {
   registerIpc(core);
   registerCoreCommands(core);
 
-  const result = await core.loadPlugins([
-    notepadPlugin,
-    todoPlugin,
-    diaryPlugin,
-    assistantPlugin,
-    anilistPlugin,
-    tvmazePlugin,
-    samplePlugin,
-  ]);
+  const result = await core.loadPlugins(firstPartyPlugins);
   for (const failure of result.errors) {
     console.error(`[nib] plugin "${failure.pluginId}" failed to load`, failure.error);
   }
@@ -74,10 +91,23 @@ void app.whenReady().then(async () => {
     return;
   }
 
+  pluginHost = new ThirdPartyPluginHost(core, app.getPath('userData'));
+  pluginHost.setFirstParty(
+    firstPartyPlugins.map((plugin) => ({
+      id: plugin.manifest.id,
+      name: plugin.manifest.name,
+      description: plugin.manifest.description,
+      permissions: plugin.manifest.permissions,
+    })),
+  );
+  pluginHost.registerIpc();
+  pluginHost.startEnabled();
+
   createMainWindow();
 
   if (process.env['NIB_NO_OVERLAY'] !== '1') {
     const overlay = createOverlayWindow();
+    trustedContents.add(overlay.webContents.id);
     core.commands.register({
       id: 'nib.core.toggle-sprite',
       title: 'Toggle sprite companion',
@@ -101,6 +131,8 @@ app.on('window-all-closed', () => {
 });
 
 app.on('will-quit', () => {
+  pluginHost?.stopAll();
+  pluginHost = undefined;
   core?.dispose();
   core = undefined;
 });

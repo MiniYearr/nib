@@ -1,0 +1,15 @@
+{
+  "id": "com.test.sandbox-probe",
+  "name": "Sandbox Probe",
+  "version": "1.0.0",
+  "minAppVersion": "0.1.0",
+  "description": "E2E fixture that proves the sandbox allows granted actions and denies the rest.",
+  "author": "Nib tests",
+  "permissions": ["records:read:note", "records:write:note", "records:write:task", "diary:read"],
+  "contributes": {
+    "commands": [
+      { "id": "write-note", "title": "Probe: write an allowed note" },
+      { "id": "probe-forbidden", "title": "Probe: attempt a forbidden write" }
+    ]
+  }
+}

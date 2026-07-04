@@ -1,5 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { matchesPattern, type NibEvent, type NibWindowApi } from '@nib/plugin-api';
+import type { NibEvent, NibWindowApi } from '@nib/plugin-api';
+
+// Inlined (not imported) so this sandboxed preload stays a single self-contained
+// CJS file — sandboxed preloads cannot require() split chunks.
+function matchesPattern(pattern: string, type: string): boolean {
+  if (pattern === '*') return true;
+  if (pattern.endsWith('.*')) return type.startsWith(pattern.slice(0, -1));
+  return pattern === type;
+}
 
 type Listener = { pattern: string; fn: (event: NibEvent) => void };
 const listeners = new Set<Listener>();

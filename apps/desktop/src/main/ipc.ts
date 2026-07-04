@@ -1,5 +1,6 @@
 import { ipcMain, webContents } from 'electron';
 import type { NibCore } from '@nib/core';
+import { trustedContents } from './broadcast';
 
 export function registerIpc(core: NibCore): void {
   ipcMain.handle('nib:commands.list', () => core.commands.list());
@@ -46,9 +47,13 @@ export function registerIpc(core: NibCore): void {
     },
   );
 
+  // Broadcast core events only to trusted first-party windows. Sandboxed
+  // plugin windows get events through the permission-filtered host, never here.
   core.bus.on('*', (event) => {
     for (const contents of webContents.getAllWebContents()) {
-      if (!contents.isDestroyed()) contents.send('nib:event', event);
+      if (!contents.isDestroyed() && trustedContents.has(contents.id)) {
+        contents.send('nib:event', event);
+      }
     }
   });
 }

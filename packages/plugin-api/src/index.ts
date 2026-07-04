@@ -1,5 +1,12 @@
 export { matchesPattern } from './event-pattern';
 
+export {
+  describePermission,
+  hostAllowed,
+  isSensitivePermission,
+  networkDomains,
+} from './capabilities';
+
 export type { CommandDescriptor, NibWindowApi } from './window-api';
 
 export type {
