@@ -2,7 +2,7 @@ import { Command } from 'cmdk';
 import { useCallback, useEffect, useState } from 'react';
 import type { CommandDescriptor } from '@nib/plugin-api';
 
-const styles = `
+export const paletteStyles = `
 .nib-palette-backdrop {
   position: fixed;
   inset: 0;
@@ -96,7 +96,7 @@ export function CommandPalette() {
 
   return (
     <>
-      <style>{styles}</style>
+      <style>{paletteStyles}</style>
       <div className="nib-palette-backdrop" onClick={() => setOpen(false)}>
         <div className="nib-palette" onClick={(event) => event.stopPropagation()}>
           <Command label="Command palette">

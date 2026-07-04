@@ -16,6 +16,18 @@ const api: NibWindowApi = {
     execute: (id) => ipcRenderer.invoke('nib:commands.execute', id),
   },
   search: (query) => ipcRenderer.invoke('nib:search', query),
+  records: {
+    list: (options) => ipcRenderer.invoke('nib:records.list', options),
+    get: (id) => ipcRenderer.invoke('nib:records.get', id),
+    create: (moduleId, input) => ipcRenderer.invoke('nib:records.create', moduleId, input),
+    update: (moduleId, id, patch) => ipcRenderer.invoke('nib:records.update', moduleId, id, patch),
+    softDelete: (moduleId, id) => ipcRenderer.invoke('nib:records.softDelete', moduleId, id),
+    listVersions: (recordId) => ipcRenderer.invoke('nib:records.listVersions', recordId),
+    getVersion: (versionId) => ipcRenderer.invoke('nib:records.getVersion', versionId),
+    restoreVersion: (moduleId, recordId, versionId) =>
+      ipcRenderer.invoke('nib:records.restoreVersion', moduleId, recordId, versionId),
+    listTags: () => ipcRenderer.invoke('nib:records.listTags'),
+  },
   events: {
     on: (pattern, fn) => {
       const listener: Listener = { pattern, fn };

@@ -1,12 +1,16 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
 import { createCore, type NibCore } from '@nib/core';
+import notepadPlugin from '@nib/plugin-notepad';
 import samplePlugin from '@nib/plugin-sample';
 import { registerCoreCommands } from './core-commands';
 import { registerIpc } from './ipc';
 import { runSmokeTest } from './smoke';
 
 let core: NibCore | undefined;
+
+const userDataOverride = process.env['NIB_USER_DATA'];
+if (userDataOverride) app.setPath('userData', userDataOverride);
 
 function createMainWindow(): void {
   const window = new BrowserWindow({
@@ -45,7 +49,7 @@ void app.whenReady().then(async () => {
   registerIpc(core);
   registerCoreCommands(core);
 
-  const result = await core.loadPlugins([samplePlugin]);
+  const result = await core.loadPlugins([notepadPlugin, samplePlugin]);
   for (const failure of result.errors) {
     console.error(`[nib] plugin "${failure.pluginId}" failed to load`, failure.error);
   }

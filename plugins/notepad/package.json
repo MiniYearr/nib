@@ -1,0 +1,33 @@
+{
+  "name": "@nib/plugin-notepad",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./renderer": "./src/renderer/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.main.json && tsc --noEmit -p tsconfig.renderer.json"
+  },
+  "dependencies": {
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@nib/plugin-api": "workspace:*",
+    "@nib/shell": "workspace:*",
+    "@tiptap/core": "^3.27.1",
+    "@tiptap/extension-list": "^3.27.1",
+    "@tiptap/markdown": "^3.27.1",
+    "@tiptap/react": "^3.27.1",
+    "@tiptap/starter-kit": "^3.27.1",
+    "cmdk": "^1.1.1",
+    "codemirror": "^6.0.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "electron": "^43.0.0"
+  }
+}

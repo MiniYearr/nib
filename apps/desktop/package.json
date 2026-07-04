@@ -12,6 +12,7 @@
   "dependencies": {
     "@nib/core": "workspace:*",
     "@nib/plugin-api": "workspace:*",
+    "@nib/plugin-notepad": "workspace:*",
     "@nib/plugin-sample": "workspace:*",
     "@nib/shell": "workspace:*",
     "react": "^19.2.7",
