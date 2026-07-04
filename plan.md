@@ -62,7 +62,9 @@ Electron chosen over Tauri 2 (would require custom per-OS native code for per-pi
 Core, UI, and plugins are all TypeScript/JavaScript — the single most approachable plugin language for outside contributors, and one toolchain for the whole monorepo. Native needs (SQLite, crypto, inference) come from prebuilt binary packages or spawned sidecars, not hand-written native code.
 
 ### 3. Local storage — SQLite + FTS5, envelope schema, oplog
-`better-sqlite3` (synchronous, fastest Node SQLite binding) in the main process only; renderers and plugins access data exclusively through the data-layer API.
+Node's built-in **`node:sqlite`** (`DatabaseSync`) in the main process only; renderers and plugins access data exclusively through the data-layer API.
+
+> **Amended during Phase 1 (2026-07-04):** the plan originally specified `better-sqlite3`, but it ships no prebuilt binary for Electron 43 (compiling one requires a full MSVC toolchain on every contributor machine, and the Node-ABI/Electron-ABI split breaks either tests or the app). Verified empirically that both Node 24 and Electron 43's bundled Node expose `node:sqlite` with FTS5 (SQLite 3.53): same synchronous API shape, zero native modules, identical engine in tests and at runtime. `node:sqlite` also supports loadable extensions (`allowExtension`), which Phase 5 needs for sqlite-vec — verify then.
 
 - **Envelope schema**: every record from any module shares `id (uuidv7), type, title, body_md, tags[], created_at, updated_at, module_id` + a JSON `props` column for module-specific fields (recurrence rules, mood, media metadata). Plugins register their record types with a JSON Schema for `props`; the data layer validates writes.
 - **Unified search**: one FTS5 table indexes `title/body/tags` across all record types → notes, tasks, and diary entries answer a single query with type facets. Tags live in a normalized table so tag queries span modules.

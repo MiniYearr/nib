@@ -1,5 +1,5 @@
 {
-  "name": "@nib/shell",
+  "name": "@nib/plugin-sample",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,13 +12,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@nib/plugin-api": "workspace:*",
-    "cmdk": "^1.1.1",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3"
+    "@nib/plugin-api": "workspace:*"
   }
 }

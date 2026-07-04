@@ -10,5 +10,9 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nib/plugin-api": "workspace:*",
+    "uuid": "^14.0.1"
   }
 }

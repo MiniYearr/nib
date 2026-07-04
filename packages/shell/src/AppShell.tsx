@@ -1,3 +1,5 @@
+import { CommandPalette } from './CommandPalette';
+
 const tokens = {
   paper: '#FBFAF7',
   ink: '#26221D',
@@ -78,8 +80,9 @@ export function AppShell() {
       </div>
       <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.015em' }}>Nib</div>
       <div style={{ fontSize: 13.5, color: tokens.inkMuted }}>
-        No modules loaded yet — the core spine lands in Phase 1.
+        The core spine is live — press <kbd>Ctrl</kbd>+<kbd>K</kbd> for the command palette.
       </div>
+      <CommandPalette />
     </div>
   );
 }

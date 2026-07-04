@@ -1,3 +1,7 @@
+export { matchesPattern } from './event-pattern';
+
+export type { CommandDescriptor, NibWindowApi } from './window-api';
+
 export type {
   CommandContribution,
   ManifestValidation,
@@ -7,3 +11,29 @@ export type {
   RecordTypeContribution,
 } from './manifest';
 export { validateManifest } from './manifest';
+
+export type {
+  ListRecordsOptions,
+  NewRecordInput,
+  NibRecord,
+  RecordPatch,
+  RecordVersion,
+  SearchHit,
+  SearchOptions,
+  TagCount,
+  VersionMeta,
+} from './records';
+
+export type {
+  CommandRegistration,
+  CommandsApi,
+  EventsApi,
+  Logger,
+  NibEvent,
+  NibEventHandler,
+  NibPluginContext,
+  NibPluginModule,
+  RecordsApi,
+  ScheduleInput,
+  SchedulerApi,
+} from './context';

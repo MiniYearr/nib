@@ -1,5 +1,12 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
+import { createCore, type NibCore } from '@nib/core';
+import samplePlugin from '@nib/plugin-sample';
+import { registerCoreCommands } from './core-commands';
+import { registerIpc } from './ipc';
+import { runSmokeTest } from './smoke';
+
+let core: NibCore | undefined;
 
 function createMainWindow(): void {
   const window = new BrowserWindow({
@@ -33,7 +40,22 @@ function createMainWindow(): void {
   }
 }
 
-void app.whenReady().then(() => {
+void app.whenReady().then(async () => {
+  core = createCore({ dbPath: join(app.getPath('userData'), 'nib.db') });
+  registerIpc(core);
+  registerCoreCommands(core);
+
+  const result = await core.loadPlugins([samplePlugin]);
+  for (const failure of result.errors) {
+    console.error(`[nib] plugin "${failure.pluginId}" failed to load`, failure.error);
+  }
+  core.start();
+
+  if (process.env['NIB_SMOKE'] === '1') {
+    await runSmokeTest(core);
+    return;
+  }
+
   createMainWindow();
 
   app.on('activate', () => {
@@ -43,4 +65,9 @@ void app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('will-quit', () => {
+  core?.dispose();
+  core = undefined;
 });

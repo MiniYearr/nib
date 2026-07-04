@@ -10,6 +10,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },
   "dependencies": {
+    "@nib/core": "workspace:*",
+    "@nib/plugin-api": "workspace:*",
+    "@nib/plugin-sample": "workspace:*",
     "@nib/shell": "workspace:*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
