@@ -91,6 +91,14 @@ describe('scheduler', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('unique jobs replace earlier ones of the same kind and module', () => {
+    scheduler.start();
+    scheduler.schedule({ kind: 'm.rollover', moduleId: 'm', runAt: Date.now() + 1000, unique: true });
+    scheduler.schedule({ kind: 'm.rollover', moduleId: 'm', runAt: Date.now() + 2000, unique: true });
+    scheduler.schedule({ kind: 'other.rollover', moduleId: 'other', runAt: Date.now() + 2000, unique: true });
+    expect(db.prepare('SELECT count(*) AS c FROM jobs').get()).toEqual({ c: 2 });
+  });
+
   it('reaches far-future jobs by re-arming in capped chunks', () => {
     const handler = vi.fn();
     scheduler.onJob('m.far', handler);

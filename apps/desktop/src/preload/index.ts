@@ -36,6 +36,9 @@ const api: NibWindowApi = {
         listeners.delete(listener);
       };
     },
+    emit: (moduleId, type, payload) => {
+      void ipcRenderer.invoke('nib:events.emit', moduleId, type, payload);
+    },
   },
   runtime: {
     electron: process.versions.electron ?? 'unknown',

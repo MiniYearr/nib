@@ -59,6 +59,8 @@ export interface ScheduleInput {
   /** When set, the job reschedules itself every `intervalMs` after firing. */
   intervalMs?: number;
   payload?: Record<string, unknown>;
+  /** Replace any existing jobs of the same kind from this plugin instead of stacking. */
+  unique?: boolean;
 }
 
 export interface SchedulerApi {

@@ -42,6 +42,8 @@ export interface NibWindowApi {
   };
   events: {
     on(pattern: string, handler: (event: NibEvent) => void): () => void;
+    /** Trusted-renderer emit; `type` must be namespaced under `moduleId.`. */
+    emit(moduleId: string, type: string, payload: unknown): void;
   };
   runtime: {
     electron: string;

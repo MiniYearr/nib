@@ -8,6 +8,7 @@ const workspacePackages = [
   '@nib/plugin-api',
   '@nib/plugin-notepad',
   '@nib/plugin-sample',
+  '@nib/plugin-todo',
   '@nib/shell',
 ];
 

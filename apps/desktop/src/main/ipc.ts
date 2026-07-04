@@ -32,6 +32,16 @@ export function registerIpc(core: NibCore): void {
   );
   ipcMain.handle('nib:records.listTags', () => core.data.listTags());
 
+  ipcMain.handle(
+    'nib:events.emit',
+    (_event, moduleId: string, type: string, payload: unknown) => {
+      if (!type.startsWith(`${moduleId}.`)) {
+        throw new Error(`renderer events must be namespaced under "${moduleId}.", got "${type}"`);
+      }
+      core.bus.emit(type, payload, moduleId);
+    },
+  );
+
   core.bus.on('*', (event) => {
     for (const contents of webContents.getAllWebContents()) {
       if (!contents.isDestroyed()) contents.send('nib:event', event);

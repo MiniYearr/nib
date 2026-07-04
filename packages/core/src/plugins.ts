@@ -156,6 +156,7 @@ function buildContext(
         runAt: input.runAt,
         intervalMs: input.intervalMs,
         payload: input.payload,
+        unique: input.unique,
       });
     },
     cancel(jobId) {

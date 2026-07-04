@@ -21,6 +21,8 @@ export interface ScheduleJobInput {
   runAt: number;
   intervalMs?: number;
   payload?: Record<string, unknown>;
+  /** Replace any existing jobs of the same kind+module instead of stacking. */
+  unique?: boolean;
 }
 
 export type JobHandler = (payload: Record<string, unknown>) => void;
@@ -93,6 +95,12 @@ export function createScheduler(deps: {
 
   return {
     schedule(input) {
+      if (input.unique) {
+        db.prepare('DELETE FROM jobs WHERE kind = ? AND module_id = ?').run(
+          input.kind,
+          input.moduleId,
+        );
+      }
       const id = newJobId();
       db.prepare(
         'INSERT INTO jobs (id, kind, module_id, run_at, interval_ms, payload, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
