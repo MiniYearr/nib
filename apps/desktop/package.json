@@ -12,6 +12,7 @@
   "dependencies": {
     "@nib/core": "workspace:*",
     "@nib/plugin-api": "workspace:*",
+    "@nib/plugin-assistant": "workspace:*",
     "@nib/plugin-diary": "workspace:*",
     "@nib/plugin-media-anilist": "workspace:*",
     "@nib/plugin-media-tvmaze": "workspace:*",

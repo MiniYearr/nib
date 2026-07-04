@@ -47,6 +47,9 @@ importers:
       '@nib/plugin-api':
         specifier: workspace:*
         version: link:../../packages/plugin-api
+      '@nib/plugin-assistant':
+        specifier: workspace:*
+        version: link:../../plugins/assistant
       '@nib/plugin-diary':
         specifier: workspace:*
         version: link:../../plugins/diary
@@ -129,6 +132,28 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
+
+  plugins/assistant:
+    dependencies:
+      '@nib/plugin-api':
+        specifier: workspace:*
+        version: link:../../packages/plugin-api
+      '@nib/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      electron:
+        specifier: ^43.0.0
+        version: 43.0.0
 
   plugins/diary:
     dependencies:

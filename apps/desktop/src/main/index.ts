@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
 import { createCore, type NibCore } from '@nib/core';
+import assistantPlugin from '@nib/plugin-assistant';
 import diaryPlugin from '@nib/plugin-diary';
 import anilistPlugin from '@nib/plugin-media-anilist';
 import tvmazePlugin from '@nib/plugin-media-tvmaze';
@@ -9,6 +10,7 @@ import todoPlugin from '@nib/plugin-todo';
 import samplePlugin from '@nib/plugin-sample';
 import { registerCoreCommands } from './core-commands';
 import { registerIpc } from './ipc';
+import { createOverlayWindow } from './overlay';
 import { runSmokeTest } from './smoke';
 
 let core: NibCore | undefined;
@@ -57,6 +59,7 @@ void app.whenReady().then(async () => {
     notepadPlugin,
     todoPlugin,
     diaryPlugin,
+    assistantPlugin,
     anilistPlugin,
     tvmazePlugin,
     samplePlugin,
@@ -72,6 +75,21 @@ void app.whenReady().then(async () => {
   }
 
   createMainWindow();
+
+  if (process.env['NIB_NO_OVERLAY'] !== '1') {
+    const overlay = createOverlayWindow();
+    core.commands.register({
+      id: 'nib.core.toggle-sprite',
+      title: 'Toggle sprite companion',
+      category: 'Nib',
+      moduleId: 'nib.core',
+      run: () => {
+        if (overlay.isDestroyed()) return;
+        if (overlay.isVisible()) overlay.hide();
+        else overlay.showInactive();
+      },
+    });
+  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();
