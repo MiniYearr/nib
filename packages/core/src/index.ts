@@ -29,6 +29,7 @@ export {
   type UpdateOptions,
 } from './records';
 export { createScheduler, type JobHandler, type ScheduleJobInput, type Scheduler } from './scheduler';
+export { createServiceRegistry, type ServiceHandler, type ServiceRegistry } from './services';
 export {
   createCommandRegistry,
   type CommandInfo,

@@ -1,6 +1,9 @@
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
 import { createCore, type NibCore } from '@nib/core';
+import diaryPlugin from '@nib/plugin-diary';
+import anilistPlugin from '@nib/plugin-media-anilist';
+import tvmazePlugin from '@nib/plugin-media-tvmaze';
 import notepadPlugin from '@nib/plugin-notepad';
 import todoPlugin from '@nib/plugin-todo';
 import samplePlugin from '@nib/plugin-sample';
@@ -50,7 +53,14 @@ void app.whenReady().then(async () => {
   registerIpc(core);
   registerCoreCommands(core);
 
-  const result = await core.loadPlugins([notepadPlugin, todoPlugin, samplePlugin]);
+  const result = await core.loadPlugins([
+    notepadPlugin,
+    todoPlugin,
+    diaryPlugin,
+    anilistPlugin,
+    tvmazePlugin,
+    samplePlugin,
+  ]);
   for (const failure of result.errors) {
     console.error(`[nib] plugin "${failure.pluginId}" failed to load`, failure.error);
   }

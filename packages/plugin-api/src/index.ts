@@ -36,4 +36,6 @@ export type {
   RecordsApi,
   ScheduleInput,
   SchedulerApi,
+  SearchProvidersApi,
+  ServicesApi,
 } from './context';

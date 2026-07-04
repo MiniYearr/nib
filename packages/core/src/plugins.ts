@@ -7,6 +7,9 @@ import type {
   PluginManifest,
   RecordsApi,
   SchedulerApi,
+  SearchHit,
+  SearchProvidersApi,
+  ServicesApi,
 } from '@nib/plugin-api';
 import { validateManifest } from '@nib/plugin-api';
 import type { CommandRegistry } from './commands';
@@ -15,6 +18,7 @@ import { createConsoleLogger } from './logger';
 import type { PermissionEngine } from './permissions';
 import type { DataLayer } from './records';
 import type { Scheduler } from './scheduler';
+import type { ServiceRegistry } from './services';
 
 export interface PluginHostDeps {
   data: DataLayer;
@@ -22,6 +26,8 @@ export interface PluginHostDeps {
   commands: CommandRegistry;
   scheduler: Scheduler;
   permissions: PermissionEngine;
+  services: ServiceRegistry;
+  registerSearchProvider(provider: (query: string) => SearchHit[]): () => void;
   createLogger?: (pluginId: string) => Logger;
 }
 
@@ -171,12 +177,36 @@ function buildContext(
     },
   };
 
+  const services: ServicesApi = {
+    register(id, handler) {
+      const off = deps.services.register(`${pluginId}.${id}`, handler);
+      disposers.push(off);
+      return off;
+    },
+    call(serviceId, payload) {
+      if (!permissions.check(pluginId, `services:call:${serviceId}`)) {
+        throw denied(pluginId, `services:call:${serviceId}`);
+      }
+      return deps.services.call(serviceId, payload);
+    },
+  };
+
+  const searchProviders: SearchProvidersApi = {
+    register(provider) {
+      const off = deps.registerSearchProvider(provider);
+      disposers.push(off);
+      return off;
+    },
+  };
+
   return {
     manifest,
     records,
     events,
     commands,
     scheduler: schedulerApi,
+    services,
+    searchProviders,
     log: (deps.createLogger ?? createConsoleLogger)(pluginId),
   };
 }

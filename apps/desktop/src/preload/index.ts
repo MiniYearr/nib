@@ -40,6 +40,15 @@ const api: NibWindowApi = {
       void ipcRenderer.invoke('nib:events.emit', moduleId, type, payload);
     },
   },
+  services: {
+    call: (serviceId, payload) => ipcRenderer.invoke('nib:services.call', serviceId, payload),
+  },
+  invoke: (channel, ...args) => {
+    if (!/^nib\.[a-z0-9-]+:[a-zA-Z0-9.-]+$/.test(channel)) {
+      return Promise.reject(new Error(`invalid module channel: ${channel}`));
+    }
+    return ipcRenderer.invoke(channel, ...args);
+  },
   runtime: {
     electron: process.versions.electron ?? 'unknown',
     chrome: process.versions.chrome ?? 'unknown',

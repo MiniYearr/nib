@@ -45,6 +45,15 @@ export interface NibWindowApi {
     /** Trusted-renderer emit; `type` must be namespaced under `moduleId.`. */
     emit(moduleId: string, type: string, payload: unknown): void;
   };
+  services: {
+    /** Call a plugin service by full id, e.g. "nib.media-anilist.lookup". */
+    call(serviceId: string, payload?: unknown): Promise<unknown>;
+  };
+  /**
+   * Escape hatch for module-specific IPC surfaces registered by trusted
+   * plugins (e.g. "nib.diary:unlock"). Channels must match `nib.<module>:…`.
+   */
+  invoke(channel: string, ...args: unknown[]): Promise<unknown>;
   runtime: {
     electron: string;
     chrome: string;

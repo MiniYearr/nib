@@ -70,6 +70,21 @@ export interface SchedulerApi {
   onJob(kind: string, handler: (payload: Record<string, unknown>) => void): () => void;
 }
 
+export interface ServicesApi {
+  /** Registers under `<pluginId>.<id>`. Returns an unregister function. */
+  register(id: string, handler: (payload: unknown) => Promise<unknown> | unknown): () => void;
+  /** Call any plugin's service by its full id, e.g. "nib.media-anilist.lookup". */
+  call(serviceId: string, payload: unknown): Promise<unknown>;
+}
+
+export interface SearchProvidersApi {
+  /**
+   * Contribute extra hits to global search — how stores outside the shared
+   * data layer (like the encrypted diary) join in. Returns an unregister fn.
+   */
+  register(provider: (query: string) => SearchHit[]): () => void;
+}
+
 export interface Logger {
   info(message: string, ...detail: unknown[]): void;
   warn(message: string, ...detail: unknown[]): void;
@@ -83,6 +98,8 @@ export interface NibPluginContext {
   events: EventsApi;
   commands: CommandsApi;
   scheduler: SchedulerApi;
+  services: ServicesApi;
+  searchProviders: SearchProvidersApi;
   log: Logger;
 }
 

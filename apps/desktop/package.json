@@ -12,10 +12,14 @@
   "dependencies": {
     "@nib/core": "workspace:*",
     "@nib/plugin-api": "workspace:*",
+    "@nib/plugin-diary": "workspace:*",
+    "@nib/plugin-media-anilist": "workspace:*",
+    "@nib/plugin-media-tvmaze": "workspace:*",
     "@nib/plugin-notepad": "workspace:*",
     "@nib/plugin-sample": "workspace:*",
     "@nib/plugin-todo": "workspace:*",
     "@nib/shell": "workspace:*",
+    "libsodium-wrappers-sumo": "^0.8.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },

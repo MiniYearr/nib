@@ -6,7 +6,11 @@ export function registerIpc(core: NibCore): void {
   ipcMain.handle('nib:commands.execute', (_event, id: unknown) =>
     core.commands.execute(String(id)),
   );
-  ipcMain.handle('nib:search', (_event, query: unknown) => core.data.search(String(query)));
+  ipcMain.handle('nib:search', (_event, query: unknown) => core.search(String(query)));
+
+  ipcMain.handle('nib:services.call', (_event, serviceId: unknown, payload: unknown) =>
+    core.services.call(String(serviceId), payload),
+  );
 
   ipcMain.handle('nib:records.list', (_event, options) => core.data.list(options));
   ipcMain.handle('nib:records.get', (_event, id: string) => core.data.get(id));

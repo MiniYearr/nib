@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react';
 const workspacePackages = [
   '@nib/core',
   '@nib/plugin-api',
+  '@nib/plugin-diary',
+  '@nib/plugin-media-anilist',
+  '@nib/plugin-media-tvmaze',
   '@nib/plugin-notepad',
   '@nib/plugin-sample',
   '@nib/plugin-todo',

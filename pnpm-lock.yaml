@@ -47,6 +47,15 @@ importers:
       '@nib/plugin-api':
         specifier: workspace:*
         version: link:../../packages/plugin-api
+      '@nib/plugin-diary':
+        specifier: workspace:*
+        version: link:../../plugins/diary
+      '@nib/plugin-media-anilist':
+        specifier: workspace:*
+        version: link:../../plugins/media-anilist
+      '@nib/plugin-media-tvmaze':
+        specifier: workspace:*
+        version: link:../../plugins/media-tvmaze
       '@nib/plugin-notepad':
         specifier: workspace:*
         version: link:../../plugins/notepad
@@ -59,6 +68,9 @@ importers:
       '@nib/shell':
         specifier: workspace:*
         version: link:../../packages/shell
+      libsodium-wrappers-sumo:
+        specifier: ^0.8.4
+        version: 0.8.4
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -117,6 +129,43 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.17)
+
+  plugins/diary:
+    dependencies:
+      '@nib/plugin-api':
+        specifier: workspace:*
+        version: link:../../packages/plugin-api
+      '@nib/shell':
+        specifier: workspace:*
+        version: link:../../packages/shell
+      libsodium-wrappers-sumo:
+        specifier: ^0.8.4
+        version: 0.8.4
+      react:
+        specifier: ^19.2.7
+        version: 19.2.7
+      react-dom:
+        specifier: ^19.2.7
+        version: 19.2.7(react@19.2.7)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.17
+        version: 19.2.17
+      electron:
+        specifier: ^43.0.0
+        version: 43.0.0
+
+  plugins/media-anilist:
+    dependencies:
+      '@nib/plugin-api':
+        specifier: workspace:*
+        version: link:../../packages/plugin-api
+
+  plugins/media-tvmaze:
+    dependencies:
+      '@nib/plugin-api':
+        specifier: workspace:*
+        version: link:../../packages/plugin-api
 
   plugins/notepad:
     dependencies:
@@ -1899,6 +1948,12 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  libsodium-sumo@0.8.4:
+    resolution: {integrity: sha512-TMtHShQfVVsaxDygyapvUC3o7YsPgXa/hRWeIgzyFz6w5k/1hirGptCxp1U7XwW3rCskaTTYKgV10v86UiGgNw==}
+
+  libsodium-wrappers-sumo@0.8.4:
+    resolution: {integrity: sha512-ql7hcgulKZ3ekfa2DGAogcCKsWU0diA/0nArz1CFzh93WQdb46/Kj18ka/Hifq6uA3Ush34Pc6vU/6HXeRwUkg==}
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -4130,6 +4185,12 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libsodium-sumo@0.8.4: {}
+
+  libsodium-wrappers-sumo@0.8.4:
+    dependencies:
+      libsodium-sumo: 0.8.4
 
   lightningcss-android-arm64@1.32.0:
     optional: true

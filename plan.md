@@ -75,6 +75,18 @@ Node's built-in **`node:sqlite`** (`DatabaseSync`) in the main process only; ren
 ### 4. Diary encryption — encrypted store + per-entry layer, invisible while locked
 Chosen semantics: **locked diary is invisible** to search and the assistant.
 
+> **Amended during Phase 4 (2026-07-04):** `better-sqlite3-multiple-ciphers` has the same
+> Electron-ABI/native-build problem that ruled out better-sqlite3, so the whole-file
+> SQLCipher approach is replaced with **application-level sealing**: diary.db is a plain
+> SQLite file whose every row is an Argon2id-derived-key + XChaCha20-Poly1305 AEAD blob
+> (libsodium WASM — still zero native modules), and the diary's FTS index is built **only
+> in memory while unlocked** and dropped on lock. This is a strictly stronger fit for
+> "invisible while locked": the index never exists on disk at all, verified by a unit test
+> that scans the raw db file for plaintext. Per-entry locks seal the body with a second
+> derived key inside the already-sealed payload. **Whisper.cpp voice entries are deferred
+> to Phase 4b** (binary + model distribution is its own work); Windows dictation (Win+H)
+> works in any Nib textbox meanwhile.
+
 - **Whole-diary lock**: diary content lives in a *separate* database file (`diary.db`) encrypted at the file level using `better-sqlite3-multiple-ciphers` (SQLite3MultipleCiphers build). Key = Argon2id(diary password) via libsodium. The diary's own FTS index and any assistant memory derived from diary entries live *inside* this DB. Unlocking `ATTACH`es it; global search then UNIONs its FTS results. Locking detaches and zeroes keys in main-process memory; auto-lock on idle.
 - **Per-entry lock**: entry body additionally encrypted app-level with XChaCha20-Poly1305, key = Argon2id(per-entry password). These entries are **never indexed anywhere** and never enter assistant memory.
 - Nothing about diary contents (including its index) exists in plaintext on disk.
