@@ -51,6 +51,17 @@ const api: NibWindowApi = {
   services: {
     call: (serviceId, payload) => ipcRenderer.invoke('nib:services.call', serviceId, payload),
   },
+  win: {
+    minimize: () => void ipcRenderer.invoke('window:minimize'),
+    toggleMaximize: () => void ipcRenderer.invoke('window:toggle-maximize'),
+    close: () => void ipcRenderer.invoke('window:close'),
+    isMaximized: () => ipcRenderer.invoke('window:is-maximized') as Promise<boolean>,
+    onMaximizeChange: (handler) => {
+      const listener = (_event: unknown, maximized: boolean) => handler(maximized);
+      ipcRenderer.on('window:maximized-changed', listener);
+      return () => ipcRenderer.removeListener('window:maximized-changed', listener);
+    },
+  },
   invoke: (channel, ...args) => {
     if (!/^nib\.[a-z0-9-]+:[a-zA-Z0-9.-]+$/.test(channel)) {
       return Promise.reject(new Error(`invalid module channel: ${channel}`));

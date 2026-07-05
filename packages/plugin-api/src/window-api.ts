@@ -54,6 +54,15 @@ export interface NibWindowApi {
    * plugins (e.g. "nib.diary:unlock"). Channels must match `nib.<module>:…`.
    */
   invoke(channel: string, ...args: unknown[]): Promise<unknown>;
+  /** Frameless-window controls for the custom title bar. */
+  win: {
+    minimize(): void;
+    toggleMaximize(): void;
+    close(): void;
+    isMaximized(): Promise<boolean>;
+    /** Returns an unsubscribe function. */
+    onMaximizeChange(handler: (maximized: boolean) => void): () => void;
+  };
   runtime: {
     electron: string;
     chrome: string;

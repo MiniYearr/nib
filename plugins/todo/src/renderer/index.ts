@@ -5,7 +5,7 @@ import { TodoView } from './TodoView';
 export const todoModule: RendererModule = {
   id: MODULE_ID,
   title: 'To-do',
-  icon: '☑',
+  icon: 'check-square',
   recordTypes: [TASK_TYPE],
   component: TodoView,
 };

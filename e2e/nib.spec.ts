@@ -19,7 +19,7 @@ test('creates a note, edits it, toggles source view, and finds it in search', as
 
   await expect(window.locator('.nib-notepad-tab-title')).toHaveText('Phoenix plan');
 
-  await window.click('.nib-note-mode button:has-text("Source")');
+  await window.click('.nib-tb-modes button:has-text("Markdown")');
   await expect(window.locator('.nib-source-editor')).toContainText('Rise from the ashes');
 
   await window.keyboard.press('Control+Shift+F');

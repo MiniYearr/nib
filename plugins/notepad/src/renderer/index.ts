@@ -5,7 +5,7 @@ import { NotepadView } from './NotepadView';
 export const notepadModule: RendererModule = {
   id: MODULE_ID,
   title: 'Notepad',
-  icon: '✎',
+  icon: 'file-text',
   recordTypes: [NOTE_TYPE],
   component: NotepadView,
 };

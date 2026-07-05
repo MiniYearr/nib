@@ -17,6 +17,7 @@
     "@nib/plugin-api": "workspace:*",
     "@nib/shell": "workspace:*",
     "@tiptap/core": "^3.27.1",
+    "@tiptap/extension-link": "^3.27.1",
     "@tiptap/extension-list": "^3.27.1",
     "@tiptap/markdown": "^3.27.1",
     "@tiptap/react": "^3.27.1",

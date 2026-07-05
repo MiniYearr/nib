@@ -7,8 +7,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./renderer": "./src/renderer/index.ts",
-    "./overlay": "./src/overlay/index.ts"
+    "./renderer": "./src/renderer/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.main.json && tsc --noEmit -p tsconfig.renderer.json"

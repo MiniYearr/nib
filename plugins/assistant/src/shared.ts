@@ -62,7 +62,3 @@ export const ASSISTANT_CHANNELS = {
   configGet: 'nib.assistant:config.get',
   configSet: 'nib.assistant:config.set',
 } as const;
-
-export const OVERLAY_CHANNELS = {
-  setInteractive: 'nib.overlay:set-interactive',
-} as const;

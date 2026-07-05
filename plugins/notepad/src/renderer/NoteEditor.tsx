@@ -1,11 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Editor } from '@tiptap/core';
 import type { NibRecord } from '@nib/plugin-api';
 import { MODULE_ID } from '../shared';
 import { RichEditor } from './RichEditor';
 import { SourceEditor } from './SourceEditor';
+import { Toolbar } from './Toolbar';
 import { VersionsPanel } from './VersionsPanel';
 
 const AUTOSAVE_MS = 700;
+
+function countWords(markdown: string): number {
+  const text = markdown.replace(/[#>*_`~![\]()-]/g, ' ').trim();
+  return text ? text.split(/\s+/).length : 0;
+}
 
 export interface NoteEditorProps {
   note: NibRecord;
@@ -20,6 +27,9 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
   const [tagDraft, setTagDraft] = useState('');
   const [showVersions, setShowVersions] = useState(false);
   const [editorNonce, setEditorNonce] = useState(0);
+  const [editor, setEditor] = useState<Editor | null>(null);
+  const [words, setWords] = useState(() => countWords(note.bodyMd));
+  const [savedAt, setSavedAt] = useState<number>(note.updatedAt);
 
   const markdownRef = useRef(note.bodyMd);
   const titleRef = useRef(note.title);
@@ -36,6 +46,7 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
       bodyMd: markdownRef.current,
       tags: tagsRef.current,
     });
+    setSavedAt(updated.updatedAt);
     onSaved(updated);
   }, [note.id, onSaved]);
 
@@ -50,9 +61,16 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
   const onMarkdownChange = useCallback(
     (markdown: string) => {
       markdownRef.current = markdown;
+      setWords(countWords(markdown));
       scheduleSave();
     },
     [scheduleSave],
+  );
+
+  const savedLabel = useMemo(
+    () =>
+      new Date(savedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }),
+    [savedAt],
   );
 
   const changeTitle = (value: string) => {
@@ -96,34 +114,27 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
 
   return (
     <div className="nib-note-editor">
-      <div className="nib-note-toolbar">
+      <Toolbar
+        editor={editor}
+        mode={mode}
+        onModeChange={setMode}
+        onToggleHistory={() => setShowVersions((open) => !open)}
+        historyOpen={showVersions}
+      />
+
+      <div className="nib-note-head">
         <input
           className="nib-note-title"
           placeholder="Untitled"
           value={title}
           onChange={(event) => changeTitle(event.target.value)}
         />
-        <div className="nib-note-toolbar-actions">
-          <div className="nib-note-mode" role="group" aria-label="Editor mode">
-            <button data-active={mode === 'rich'} onClick={() => setMode('rich')}>
-              Rich
-            </button>
-            <button data-active={mode === 'source'} onClick={() => setMode('source')}>
-              Source
-            </button>
-          </div>
-          <button
-            className="nib-note-action"
-            data-active={showVersions}
-            title="Version history"
-            onClick={() => setShowVersions((open) => !open)}
-          >
-            History
-          </button>
-          <button className="nib-note-action" title="Delete note" onClick={() => void deleteNote()}>
-            Delete
-          </button>
-        </div>
+        <button className="nib-note-delete" title="Delete note" onClick={() => void deleteNote()}>
+          Delete
+        </button>
+      </div>
+      <div className="nib-note-meta">
+        Edited {savedLabel} · {words} {words === 1 ? 'word' : 'words'} · autosaved
       </div>
 
       <div className="nib-note-tags">
@@ -154,6 +165,7 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
             key={`rich-${editorNonce}`}
             initialMarkdown={markdownRef.current}
             onMarkdownChange={onMarkdownChange}
+            onEditor={setEditor}
           />
         ) : (
           <SourceEditor

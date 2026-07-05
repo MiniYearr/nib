@@ -1,55 +1,37 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { NibRecord } from '@nib/plugin-api';
 import { CommandPalette } from './CommandPalette';
+import { Icon } from './icons';
 import { SearchOverlay } from './SearchOverlay';
-import type { ModuleHostApi, ModuleOpenRequest, RendererModule } from './module';
+import { TitleBar } from './TitleBar';
+import type { CompanionParts, ModuleHostApi, ModuleOpenRequest, RendererModule } from './module';
+
+const COLLAPSE_KEY = 'nib.sidebar.collapsed';
 
 const styles = `
-.nib-shell {
-  display: grid;
-  grid-template-columns: 236px 1fr;
+.nib-app {
+  display: flex;
+  flex-direction: column;
   height: 100vh;
   background: #FBFAF7;
   color: #26221D;
   font-family: 'Figtree', system-ui, sans-serif;
+  overflow: hidden;
 }
+.nib-body { flex: 1; display: flex; min-height: 0; }
 .nib-sidebar {
+  width: 236px;
+  flex: none;
   background: #F3EFE7;
   border-right: 1px solid rgba(30, 25, 18, 0.08);
   display: flex;
   flex-direction: column;
-  padding: 14px 12px;
+  padding: 12px 12px 12px;
   user-select: none;
+  transition: width 0.16s ease, padding 0.16s ease;
+  overflow: hidden;
 }
-.nib-sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 2px 6px 14px;
-}
-.nib-sidebar-brand-mark {
-  width: 20px;
-  height: 23px;
-  border-radius: 7px 7px 8px 8px;
-  background: #BF6B44;
-  position: relative;
-}
-.nib-sidebar-brand-mark::before,
-.nib-sidebar-brand-mark::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  width: 3.5px;
-  height: 4.5px;
-  border-radius: 2px;
-  background: #fff;
-}
-.nib-sidebar-brand-mark::before { left: 4.5px; }
-.nib-sidebar-brand-mark::after { right: 4.5px; }
-.nib-sidebar-brand-name {
-  font-size: 13.5px;
-  font-weight: 700;
-}
+.nib-sidebar[data-collapsed='true'] { width: 60px; padding-left: 8px; padding-right: 8px; }
 .nib-sidebar-search {
   display: flex;
   align-items: center;
@@ -66,12 +48,15 @@ const styles = `
   width: 100%;
   font-family: inherit;
 }
+.nib-sidebar[data-collapsed='true'] .nib-sidebar-search { justify-content: center; padding: 8px 0; }
 .nib-sidebar-search kbd {
   margin-left: auto;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10px;
   color: #9B948A;
 }
+.nib-hide-collapsed { display: inline; }
+.nib-sidebar[data-collapsed='true'] .nib-hide-collapsed { display: none; }
 .nib-sidebar-section {
   padding: 4px 6px 6px;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
@@ -79,11 +64,13 @@ const styles = `
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #A79F92;
+  white-space: nowrap;
 }
+.nib-sidebar[data-collapsed='true'] .nib-sidebar-section { visibility: hidden; height: 8px; padding: 0; }
 .nib-sidebar-module {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   width: 100%;
   border: none;
   background: transparent;
@@ -94,14 +81,19 @@ const styles = `
   color: #4A443B;
   cursor: default;
   text-align: left;
+  white-space: nowrap;
 }
+.nib-sidebar[data-collapsed='true'] .nib-sidebar-module { justify-content: center; padding: 9px 0; }
+.nib-sidebar-module:hover { background: rgba(30, 25, 18, 0.05); }
 .nib-sidebar-module[data-active='true'] {
-  background: rgba(191, 107, 68, 0.13);
+  background: color-mix(in srgb, #BF6B44 14%, transparent);
   color: #26221D;
   font-weight: 600;
 }
-.nib-sidebar-module-icon { width: 16px; text-align: center; }
-.nib-main { overflow: hidden; min-width: 0; }
+.nib-sidebar-module[data-active='true'] .nib-sidebar-module-icon { color: #BF6B44; }
+.nib-sidebar-module-icon { color: #6B655C; display: flex; }
+.nib-sidebar-spacer { flex: 1; }
+.nib-main { flex: 1; min-width: 0; position: relative; overflow: hidden; }
 .nib-welcome {
   height: 100%;
   display: flex;
@@ -135,12 +127,33 @@ function WelcomeMark() {
 
 export interface AppShellProps {
   modules?: RendererModule[];
+  companion?: CompanionParts;
 }
 
-export function AppShell({ modules = [] }: AppShellProps) {
+export function AppShell({ modules = [], companion }: AppShellProps) {
   const [activeModuleId, setActiveModuleId] = useState<string | undefined>(modules[0]?.id);
   const [searchOpen, setSearchOpen] = useState(false);
   const [openRequests, setOpenRequests] = useState<Record<string, ModuleOpenRequest>>({});
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(COLLAPSE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [companionOut, setCompanionOut] = useState(false);
+
+  const toggleCollapsed = useCallback(() => {
+    setCollapsed((current) => {
+      const next = !current;
+      try {
+        localStorage.setItem(COLLAPSE_KEY, next ? '1' : '0');
+      } catch {
+        // ignore storage failures
+      }
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -168,47 +181,59 @@ export function AppShell({ modules = [] }: AppShellProps) {
 
   const host: ModuleHostApi = useMemo(() => ({ openRecord }), [openRecord]);
   const active = modules.find((module) => module.id === activeModuleId);
+  const Dock = companion?.Dock;
+  const Stage = companion?.Stage;
 
   return (
     <>
       <style>{styles}</style>
-      <div className="nib-shell">
-        <aside className="nib-sidebar">
-          <div className="nib-sidebar-brand">
-            <div className="nib-sidebar-brand-mark" />
-            <span className="nib-sidebar-brand-name">Nib</span>
-          </div>
-          <button className="nib-sidebar-search" onClick={() => setSearchOpen(true)}>
-            <span>Search everything</span>
-            <kbd>⌃⇧F</kbd>
-          </button>
-          <div className="nib-sidebar-section">Modules</div>
-          {modules.map((module) => (
+      <div className="nib-app">
+        <TitleBar onToggleSidebar={toggleCollapsed} />
+        <div className="nib-body">
+          <aside className="nib-sidebar" data-collapsed={collapsed}>
             <button
-              key={module.id}
-              className="nib-sidebar-module"
-              data-active={module.id === activeModuleId}
-              onClick={() => setActiveModuleId(module.id)}
+              className="nib-sidebar-search"
+              onClick={() => setSearchOpen(true)}
+              title="Search everything"
             >
-              <span className="nib-sidebar-module-icon">{module.icon}</span>
-              <span>{module.title}</span>
+              <Icon name="search" size={14} style={{ color: '#9B948A' }} />
+              <span className="nib-hide-collapsed">Search everything</span>
+              <kbd className="nib-hide-collapsed">⌃⇧F</kbd>
             </button>
-          ))}
-        </aside>
-        <main className="nib-main">
-          {active ? (
-            <active.component host={host} openRequest={openRequests[active.id]} />
-          ) : (
-            <div className="nib-welcome">
-              <WelcomeMark />
-              <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.015em' }}>Nib</div>
-              <div className="nib-welcome-hint">
-                Press <kbd>Ctrl</kbd>+<kbd>K</kbd> for commands · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+
-                <kbd>F</kbd> to search
+            <div className="nib-sidebar-section">Modules</div>
+            {modules.map((module) => (
+              <button
+                key={module.id}
+                className="nib-sidebar-module"
+                data-active={module.id === activeModuleId}
+                title={module.title}
+                onClick={() => setActiveModuleId(module.id)}
+              >
+                <span className="nib-sidebar-module-icon">
+                  <Icon name={module.icon} size={16} />
+                </span>
+                <span className="nib-hide-collapsed">{module.title}</span>
+              </button>
+            ))}
+            <div className="nib-sidebar-spacer" />
+            {Dock && <Dock onPop={() => setCompanionOut(true)} collapsed={collapsed} />}
+          </aside>
+          <main className="nib-main">
+            {active ? (
+              <active.component host={host} openRequest={openRequests[active.id]} />
+            ) : (
+              <div className="nib-welcome">
+                <WelcomeMark />
+                <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.015em' }}>Nib</div>
+                <div className="nib-welcome-hint">
+                  Press <kbd>Ctrl</kbd>+<kbd>K</kbd> for commands · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+
+                  <kbd>F</kbd> to search
+                </div>
               </div>
-            </div>
-          )}
-        </main>
+            )}
+            {Stage && companionOut && <Stage onDock={() => setCompanionOut(false)} />}
+          </main>
+        </div>
       </div>
       <CommandPalette />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} onOpenRecord={openRecord} />

@@ -17,11 +17,23 @@ export interface ModuleViewProps {
   openRequest?: ModuleOpenRequest;
 }
 
+/**
+ * The on-screen companion, split so the shell can place the dock in the sidebar
+ * and the wandering "stage" over the main content area while the assistant
+ * package owns each part's chat/state.
+ */
+export interface CompanionParts {
+  /** Sidebar chip; `onPop` sends Nib out to wander the window. */
+  Dock: ComponentType<{ onPop(): void; collapsed: boolean }>;
+  /** In-window wandering sprite + chat; `onDock` returns it to the sidebar. */
+  Stage: ComponentType<{ onDock(): void }>;
+}
+
 /** A trusted in-repo module's renderer half, mounted inside the main window. */
 export interface RendererModule {
   id: string;
   title: string;
-  /** Short glyph shown in the sidebar until an icon system lands. */
+  /** Icon name from the shell icon set (see `icons.tsx`), e.g. "file-text". */
   icon: string;
   /** Record types this module owns — search hits of these types route here. */
   recordTypes: string[];

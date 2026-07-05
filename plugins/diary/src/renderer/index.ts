@@ -5,7 +5,7 @@ import { DiaryView } from './DiaryView';
 export const diaryModule: RendererModule = {
   id: MODULE_ID,
   title: 'Diary',
-  icon: '📔',
+  icon: 'book-open',
   recordTypes: [DIARY_TYPE],
   component: DiaryView,
 };

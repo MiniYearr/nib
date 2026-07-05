@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, Menu, shell } from 'electron';
 import { join } from 'node:path';
 import { createCore, type NibCore } from '@nib/core';
 import assistantPlugin from '@nib/plugin-assistant';
@@ -11,9 +11,9 @@ import samplePlugin from '@nib/plugin-sample';
 import { trustedContents } from './broadcast';
 import { registerCoreCommands } from './core-commands';
 import { registerIpc } from './ipc';
-import { createOverlayWindow } from './overlay';
 import { ThirdPartyPluginHost } from './plugin-host';
 import { runSmokeTest } from './smoke';
+import { registerWindowControls, wireMaximizeEvents } from './window-controls';
 
 let core: NibCore | undefined;
 let pluginHost: ThirdPartyPluginHost | undefined;
@@ -31,6 +31,9 @@ const firstPartyPlugins = [
 const userDataOverride = process.env['NIB_USER_DATA'];
 if (userDataOverride) app.setPath('userData', userDataOverride);
 
+// No native application menu — the app owns its chrome (custom title bar).
+Menu.setApplicationMenu(null);
+
 function createMainWindow(): void {
   const window = new BrowserWindow({
     width: 1200,
@@ -38,6 +41,7 @@ function createMainWindow(): void {
     minWidth: 900,
     minHeight: 600,
     show: false,
+    frame: false,
     backgroundColor: '#FBFAF7',
     title: 'Nib',
     webPreferences: {
@@ -52,10 +56,11 @@ function createMainWindow(): void {
   // ("Object has been destroyed") and would wedge app shutdown.
   const contentsId = window.webContents.id;
   trustedContents.add(contentsId);
+  wireMaximizeEvents(window);
   window.on('closed', () => {
     trustedContents.delete(contentsId);
-    // The main window is the app: closing it quits. Tear down hidden plugin and
-    // overlay windows first so nothing keeps the process alive.
+    // The main window is the app: closing it quits. Tear down hidden plugin
+    // windows first so nothing keeps the process alive.
     pluginHost?.stopAll();
     if (process.platform !== 'darwin') app.quit();
   });
@@ -79,6 +84,7 @@ void app.whenReady().then(async () => {
   core = createCore({ dbPath: join(app.getPath('userData'), 'nib.db') });
   registerIpc(core);
   registerCoreCommands(core);
+  registerWindowControls();
 
   const result = await core.loadPlugins(firstPartyPlugins);
   for (const failure of result.errors) {
@@ -104,22 +110,6 @@ void app.whenReady().then(async () => {
   pluginHost.startEnabled();
 
   createMainWindow();
-
-  if (process.env['NIB_NO_OVERLAY'] !== '1') {
-    const overlay = createOverlayWindow();
-    trustedContents.add(overlay.webContents.id);
-    core.commands.register({
-      id: 'nib.core.toggle-sprite',
-      title: 'Toggle sprite companion',
-      category: 'Nib',
-      moduleId: 'nib.core',
-      run: () => {
-        if (overlay.isDestroyed()) return;
-        if (overlay.isVisible()) overlay.hide();
-        else overlay.showInactive();
-      },
-    });
-  }
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createMainWindow();

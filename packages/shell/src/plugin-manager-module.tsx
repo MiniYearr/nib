@@ -5,7 +5,7 @@ import { PluginManager } from './PluginManager';
 export const pluginManagerModule: RendererModule = {
   id: 'nib.plugins',
   title: 'Plugins',
-  icon: '🧩',
+  icon: 'puzzle',
   recordTypes: [],
   component: PluginManager,
 };
