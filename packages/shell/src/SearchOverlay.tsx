@@ -15,8 +15,8 @@ const styles = `
 .nib-search {
   width: 640px;
   max-width: calc(100vw - 48px);
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 15px;
   box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.55);
   overflow: hidden;
@@ -29,8 +29,8 @@ const styles = `
   background: transparent;
   font: inherit;
   font-size: 15px;
-  color: #26221D;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.08);
+  color: var(--nib-ink);
+  border-bottom: 1px solid var(--nib-border);
 }
 .nib-search-results {
   max-height: 380px;
@@ -43,7 +43,7 @@ const styles = `
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #9B948A;
+  color: var(--nib-faint);
 }
 .nib-search-item {
   display: block;
@@ -62,12 +62,12 @@ const styles = `
 .nib-search-item-title {
   font-size: 13.5px;
   font-weight: 600;
-  color: #26221D;
+  color: var(--nib-ink);
   margin-bottom: 2px;
 }
 .nib-search-item-snippet {
   font-size: 12.5px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
 }
 .nib-search-item-snippet mark {
   background: rgba(191, 107, 68, 0.25);
@@ -78,7 +78,7 @@ const styles = `
 .nib-search-empty {
   padding: 16px;
   font-size: 13px;
-  color: #8A8171;
+  color: var(--nib-muted);
 }
 `;
 

@@ -83,7 +83,7 @@ export function MediaShelf() {
 
       {hits !== undefined && (
         <div className="nib-media-hits">
-          {hits.length === 0 && <span style={{ fontSize: 12.5, color: '#8A8171' }}>No matches found — you can still add it manually.</span>}
+          {hits.length === 0 && <span style={{ fontSize: 12.5, color: 'var(--nib-muted)' }}>No matches found — you can still add it manually.</span>}
           {hits.map((hit, index) => (
             <button key={index} className="nib-media-hit" onClick={() => void add(hit)}>
               <span>{KIND_EMOJI[hit.kind] ?? '📦'}</span>

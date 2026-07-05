@@ -17,7 +17,7 @@ const styles = `
   align-items: center;
   gap: 4px;
   padding: 8px 10px 0;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.08);
+  border-bottom: 1px solid var(--nib-border);
   overflow-x: auto;
   flex: none;
 }
@@ -32,43 +32,47 @@ const styles = `
   padding: 7px 8px 7px 12px;
   font: inherit;
   font-size: 12.5px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
   max-width: 180px;
   white-space: nowrap;
 }
 .nib-notepad-tab[data-active='true'] {
-  background: #FBFAF7;
-  border-color: rgba(30, 25, 18, 0.1);
-  color: #26221D;
+  background: var(--nib-paper);
+  border-color: var(--nib-border-strong);
+  color: var(--nib-ink);
   font-weight: 600;
 }
 .nib-notepad-tab-title { overflow: hidden; text-overflow: ellipsis; }
 .nib-notepad-tab-close {
   border: none;
   background: transparent;
-  color: #9B948A;
+  color: var(--nib-faint);
   font-size: 13px;
-  padding: 0 2px;
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
   cursor: default;
 }
-.nib-notepad-tab-close:hover { color: #26221D; }
+.nib-notepad-tab-close:hover { background: var(--nib-border-strong); color: var(--nib-ink); }
 .nib-notepad-new {
   border: none;
   background: transparent;
-  color: #8A8171;
+  color: var(--nib-muted);
   font-size: 17px;
   padding: 4px 9px;
   border-radius: 7px;
   cursor: default;
 }
-.nib-notepad-new:hover { background: rgba(30, 25, 18, 0.06); }
+.nib-notepad-new:hover { background: var(--nib-border); }
 .nib-notepad-hint {
   margin-left: auto;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10px;
-  color: #A79F92;
+  color: var(--nib-section);
   padding-right: 8px;
   white-space: nowrap;
 }
@@ -79,7 +83,7 @@ const styles = `
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: #8A8171;
+  color: var(--nib-muted);
   font-size: 13.5px;
   user-select: none;
 }
@@ -91,13 +95,13 @@ const styles = `
   height: 46px;
   flex: none;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.07);
+  border-bottom: 1px solid var(--nib-border);
   position: relative;
 }
 .nib-tb-modes {
   display: flex;
-  background: #F0EBE2;
-  border: 1px solid rgba(30, 25, 18, 0.09);
+  background: var(--nib-chip);
+  border: 1px solid var(--nib-border);
   border-radius: 8px;
   padding: 2px;
 }
@@ -108,15 +112,15 @@ const styles = `
   font-size: 11.5px;
   padding: 4px 11px;
   border-radius: 6px;
-  color: #8A8171;
+  color: var(--nib-muted);
   cursor: default;
 }
 .nib-tb-modes button[data-active='true'] {
-  background: #BF6B44;
+  background: var(--nib-accent);
   color: #fff;
   font-weight: 600;
 }
-.nib-tb-divider { width: 1px; height: 20px; background: rgba(30, 25, 18, 0.1); }
+.nib-tb-divider { width: 1px; height: 20px; background: var(--nib-border-strong); }
 .nib-tb-group { display: flex; align-items: center; gap: 2px; }
 .nib-tb-btn {
   width: 28px;
@@ -127,11 +131,11 @@ const styles = `
   border: none;
   background: transparent;
   border-radius: 7px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
 }
-.nib-tb-btn:hover:not(:disabled) { background: rgba(30, 25, 18, 0.06); color: #26221D; }
-.nib-tb-btn[data-active='true'] { background: rgba(191, 107, 68, 0.14); color: #8C4F33; }
+.nib-tb-btn:hover:not(:disabled) { background: var(--nib-border); color: var(--nib-ink); }
+.nib-tb-btn[data-active='true'] { background: rgba(191, 107, 68, 0.14); color: var(--nib-accent-ink); }
 .nib-tb-btn:disabled { opacity: 0.35; }
 .nib-tb-link {
   position: absolute;
@@ -140,14 +144,14 @@ const styles = `
   z-index: 30;
   display: flex;
   gap: 6px;
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.14);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 9px;
   box-shadow: 0 12px 26px -12px rgba(50, 38, 24, 0.4);
   padding: 7px;
 }
 .nib-tb-link input {
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 6px;
   font: inherit;
   font-size: 12px;
@@ -158,7 +162,7 @@ const styles = `
 }
 .nib-tb-link button {
   border: none;
-  background: #BF6B44;
+  background: var(--nib-accent);
   color: #fff;
   font: inherit;
   font-size: 12px;
@@ -177,15 +181,52 @@ const styles = `
   font: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #8A8171;
+  color: var(--nib-muted);
   border-radius: 8px;
   padding: 6px 11px;
   cursor: default;
 }
 .nib-tb-history[data-active='true'], .nib-tb-history:hover {
   background: rgba(191, 107, 68, 0.12);
-  color: #BF6B44;
+  color: var(--nib-accent);
 }
+.nib-tb-more-wrap { position: relative; }
+.nib-tb-more-scrim { position: fixed; inset: 0; z-index: 40; }
+.nib-tb-more {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  z-index: 41;
+  min-width: 170px;
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
+  border-radius: 11px;
+  box-shadow: 0 18px 40px -16px var(--nib-shadow);
+  padding: 8px;
+}
+.nib-tb-more-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nib-section);
+  padding: 2px 8px 6px;
+}
+.nib-tb-more-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--nib-ink);
+  padding: 6px 8px;
+  border-radius: 7px;
+  cursor: default;
+}
+.nib-tb-more-item:hover { background: var(--nib-chip); }
+.nib-tb-more-item input { accent-color: var(--nib-accent); }
+.nib-note-head[data-bare='true'] { padding-top: 12px; padding-bottom: 4px; }
+.nib-note-head[data-bare='true'] .nib-note-delete { opacity: 0.55; }
+.nib-note-head[data-bare='true']:hover .nib-note-delete { opacity: 1; }
 .nib-note-head { display: flex; align-items: center; gap: 12px; padding: 22px 40px 0; flex: none; }
 .nib-note-title {
   flex: 1;
@@ -197,15 +238,15 @@ const styles = `
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #26221D;
+  color: var(--nib-ink);
 }
-.nib-note-title::placeholder { color: #C9C2B4; }
+.nib-note-title::placeholder { color: var(--nib-placeholder); }
 .nib-note-delete {
   border: 1px solid rgba(191, 68, 68, 0.3);
   background: transparent;
   font: inherit;
   font-size: 11.5px;
-  color: #A54D3B;
+  color: var(--nib-danger);
   padding: 5px 10px;
   border-radius: 8px;
   cursor: default;
@@ -216,13 +257,13 @@ const styles = `
   padding: 6px 40px 0;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
-  color: #A79F92;
+  color: var(--nib-section);
   flex: none;
 }
 .nib-bubble {
   display: flex;
   gap: 2px;
-  background: #26221D;
+  background: var(--nib-ink);
   border-radius: 9px;
   padding: 3px;
   box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
@@ -235,7 +276,7 @@ const styles = `
   justify-content: center;
   border: none;
   background: transparent;
-  color: #E4DED2;
+  color: var(--nib-surface);
   border-radius: 6px;
   cursor: default;
 }
@@ -244,8 +285,8 @@ const styles = `
   position: fixed;
   z-index: 80;
   min-width: 190px;
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 11px;
   box-shadow: 0 20px 44px -16px rgba(50, 38, 24, 0.5);
   padding: 5px;
@@ -259,14 +300,14 @@ const styles = `
   background: transparent;
   font: inherit;
   font-size: 13px;
-  color: #26221D;
+  color: var(--nib-ink);
   padding: 7px 10px;
   border-radius: 8px;
   cursor: default;
   text-align: left;
 }
 .nib-slash-item[data-active='true'] { background: rgba(191, 107, 68, 0.12); }
-.nib-slash-item svg { color: #8A8171; }
+.nib-slash-item svg { color: var(--nib-muted); }
 .nib-note-tags {
   display: flex;
   align-items: center;
@@ -280,7 +321,7 @@ const styles = `
   align-items: center;
   gap: 3px;
   background: rgba(191, 107, 68, 0.1);
-  color: #8C4F33;
+  color: var(--nib-accent-ink);
   font-size: 11.5px;
   padding: 3px 4px 3px 8px;
   border-radius: 6px;
@@ -301,7 +342,7 @@ const styles = `
   background: transparent;
   font: inherit;
   font-size: 11.5px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   width: 72px;
 }
 .nib-note-body { flex: 1; display: flex; min-height: 0; position: relative; }
@@ -314,12 +355,12 @@ const styles = `
 .nib-rich-editor .ProseMirror code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.88em;
-  background: #F1EDE6;
+  background: var(--nib-chip);
   border-radius: 4px;
   padding: 1px 4px;
 }
 .nib-rich-editor .ProseMirror pre {
-  background: #F1EDE6;
+  background: var(--nib-chip);
   border-radius: 9px;
   padding: 12px 14px;
 }
@@ -328,20 +369,74 @@ const styles = `
   border-left: 3px solid rgba(191, 107, 68, 0.5);
   margin-left: 0;
   padding-left: 14px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
 }
 .nib-rich-editor .ProseMirror ul[data-type='taskList'] { list-style: none; padding-left: 4px; }
 .nib-rich-editor .ProseMirror ul[data-type='taskList'] li { display: flex; gap: 8px; }
 .nib-rich-editor .ProseMirror ul[data-type='taskList'] li > label { flex: none; }
-.nib-rich-editor .ProseMirror a { color: #BF6B44; }
+.nib-rich-editor .ProseMirror a { color: var(--nib-accent); }
 .nib-source-editor { flex: 1; overflow: hidden; padding: 0 40px; min-width: 0; }
 .nib-source-editor .cm-editor { height: 100%; }
 `;
+
+const TABS_KEY = 'nib.notepad.openTabs';
+const ACTIVE_KEY = 'nib.notepad.activeTab';
 
 export function NotepadView({ openRequest }: ModuleViewProps) {
   const [tabs, setTabs] = useState<NibRecord[]>([]);
   const [activeId, setActiveId] = useState<string>();
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  // Restore the previously-open tabs (across section switches / relaunch); if
+  // none survive, open a fresh note so the section is never empty.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      if (!window.nib) return;
+      const readIds = (): string[] => {
+        try {
+          return JSON.parse(localStorage.getItem(TABS_KEY) ?? '[]') as string[];
+        } catch {
+          return [];
+        }
+      };
+      const fetched = await Promise.all(readIds().map((id) => window.nib!.records.get(id)));
+      const restored = fetched.filter(
+        (record): record is NibRecord => Boolean(record) && record!.type === NOTE_TYPE,
+      );
+      if (cancelled) return;
+      if (restored.length === 0) {
+        const note = await window.nib.records.create(MODULE_ID, {
+          type: NOTE_TYPE,
+          title: '',
+          bodyMd: '',
+        });
+        if (cancelled) return;
+        setTabs([note]);
+        setActiveId(note.id);
+      } else {
+        const savedActive = localStorage.getItem(ACTIVE_KEY) ?? undefined;
+        setTabs(restored);
+        setActiveId(restored.some((r) => r.id === savedActive) ? savedActive : restored[0]!.id);
+      }
+      setReady(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Persist the open set + active tab.
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      localStorage.setItem(TABS_KEY, JSON.stringify(tabs.map((tab) => tab.id)));
+      if (activeId) localStorage.setItem(ACTIVE_KEY, activeId);
+    } catch {
+      // ignore storage failures
+    }
+  }, [ready, tabs, activeId]);
 
   const openTab = useCallback((note: NibRecord) => {
     setTabs((current) =>

@@ -1,5 +1,10 @@
 import {
+  BOOK_CHANNELS as BC,
   DIARY_CHANNELS as CH,
+  type BookDto,
+  type BookLookupHit,
+  type BookNoteDto,
+  type BookStatus,
   type DiaryEntryDto,
   type DiaryStatus,
   type MediaItemDto,
@@ -43,6 +48,30 @@ export const diaryApi = {
   }) => inv<MediaItemDto>(CH.mediaAdd, input),
   mediaRemove: (id: string) => inv<void>(CH.mediaRemove, id),
   mediaLookup: (title: string) => inv<MediaLookupHit[]>(CH.mediaLookup, title),
+  entryCount: () => inv<number | null>(CH.entryCount),
+  booksList: () => inv<BookDto[]>(BC.list),
+  bookAdd: (input: {
+    title: string;
+    author?: string;
+    year?: number;
+    pages?: number;
+    coverUrl?: string;
+    status?: BookStatus;
+    tags?: string[];
+  }) => inv<BookDto>(BC.add, input),
+  bookUpdate: (id: string, patch: { status?: BookStatus; tags?: string[]; title?: string }) =>
+    inv<BookDto>(BC.update, id, patch),
+  bookRemove: (id: string) => inv<void>(BC.remove, id),
+  bookLookup: (query: string) => inv<BookLookupHit[]>(BC.lookup, query),
+  bookNotesList: (bookId: string) => inv<BookNoteDto[]>(BC.notesList, bookId),
+  bookNoteAdd: (input: {
+    bookId: string;
+    page?: number;
+    highlight?: string;
+    note: string;
+    tags?: string[];
+  }) => inv<BookNoteDto>(BC.noteAdd, input),
+  bookNoteRemove: (id: string) => inv<void>(BC.noteRemove, id),
 };
 
 export function todayStr(): string {

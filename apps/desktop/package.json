@@ -15,6 +15,7 @@
     "@nib/plugin-assistant": "workspace:*",
     "@nib/plugin-diary": "workspace:*",
     "@nib/plugin-media-anilist": "workspace:*",
+    "@nib/plugin-media-openlibrary": "workspace:*",
     "@nib/plugin-media-tvmaze": "workspace:*",
     "@nib/plugin-notepad": "workspace:*",
     "@nib/plugin-sample": "workspace:*",

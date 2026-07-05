@@ -10,6 +10,7 @@ const workspacePackages = [
   '@nib/plugin-assistant',
   '@nib/plugin-diary',
   '@nib/plugin-media-anilist',
+  '@nib/plugin-media-openlibrary',
   '@nib/plugin-media-tvmaze',
   '@nib/plugin-notepad',
   '@nib/plugin-sample',

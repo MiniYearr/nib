@@ -16,8 +16,8 @@ export const paletteStyles = `
 .nib-palette {
   width: 560px;
   max-width: calc(100vw - 48px);
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 15px;
   box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.55);
   overflow: hidden;
@@ -30,8 +30,8 @@ export const paletteStyles = `
   background: transparent;
   font: inherit;
   font-size: 15px;
-  color: #26221D;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.08);
+  color: var(--nib-ink);
+  border-bottom: 1px solid var(--nib-border);
 }
 .nib-palette [cmdk-list] {
   max-height: 320px;
@@ -46,7 +46,7 @@ export const paletteStyles = `
   padding: 10px 14px;
   border-radius: 9px;
   font-size: 13.5px;
-  color: #26221D;
+  color: var(--nib-ink);
   cursor: default;
 }
 .nib-palette [cmdk-item][data-selected='true'] {
@@ -55,12 +55,12 @@ export const paletteStyles = `
 .nib-palette [cmdk-empty] {
   padding: 14px;
   font-size: 13px;
-  color: #8A8171;
+  color: var(--nib-muted);
 }
 .nib-palette-module {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10.5px;
-  color: #8A8171;
+  color: var(--nib-muted);
   flex: none;
 }
 `;

@@ -4,6 +4,7 @@ import { createCore, type NibCore } from '@nib/core';
 import assistantPlugin from '@nib/plugin-assistant';
 import diaryPlugin from '@nib/plugin-diary';
 import anilistPlugin from '@nib/plugin-media-anilist';
+import openLibraryPlugin from '@nib/plugin-media-openlibrary';
 import tvmazePlugin from '@nib/plugin-media-tvmaze';
 import notepadPlugin from '@nib/plugin-notepad';
 import todoPlugin from '@nib/plugin-todo';
@@ -25,6 +26,7 @@ const firstPartyPlugins = [
   assistantPlugin,
   anilistPlugin,
   tvmazePlugin,
+  openLibraryPlugin,
   samplePlugin,
 ];
 

@@ -12,7 +12,7 @@ export const spriteStyles = `
   width: 44px;
   height: 50px;
   border-radius: 15px 15px 17px 17px;
-  background: #BF6B44;
+  background: var(--nib-accent);
   box-shadow: 0 6px 14px -4px rgba(191, 107, 68, 0.6);
   cursor: pointer;
 }
@@ -23,10 +23,10 @@ export const spriteStyles = `
 .nib-sprite-eye { position: absolute; top: 17px; width: 7px; height: 9px; border-radius: 3px; background: #fff; animation: nib-blink 4s infinite; }
 .nib-sprite-eye[data-side='left'] { left: 10px; }
 .nib-sprite-eye[data-side='right'] { right: 10px; }
-.nib-sprite-antenna { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 3px; height: 10px; background: #BF6B44; }
-.nib-sprite-antenna::after { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: #BF6B44; }
+.nib-sprite-antenna { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 3px; height: 10px; background: var(--nib-accent); }
+.nib-sprite-antenna::after { content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--nib-accent); }
 .nib-think-dots { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; }
-.nib-think-dots span { width: 6px; height: 6px; border-radius: 50%; background: #BF6B44; animation: nib-think 1.2s ease-in-out infinite; }
+.nib-think-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--nib-accent); animation: nib-think 1.2s ease-in-out infinite; }
 .nib-think-dots span:nth-child(2) { animation-delay: 0.2s; }
 .nib-think-dots span:nth-child(3) { animation-delay: 0.4s; }
 .nib-sparks { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; }

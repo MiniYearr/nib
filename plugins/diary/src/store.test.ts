@@ -53,12 +53,10 @@ describe('diary store lifecycle', () => {
       title: 'ObsidianTitleMarker',
       bodyMd: 'CrimsonBodyMarker went to the lake.',
     });
-    store.addMedia({ kind: 'anime', title: 'SapphireMediaMarker', completedAt: '2026-07-01' });
 
     const raw = readFileSync(join(dir, 'diary.db'));
     expect(raw.includes(Buffer.from('ObsidianTitleMarker'))).toBe(false);
     expect(raw.includes(Buffer.from('CrimsonBodyMarker'))).toBe(false);
-    expect(raw.includes(Buffer.from('SapphireMediaMarker'))).toBe(false);
   });
 
   it('updates entries and searches across title and body while unlocked', async () => {
@@ -128,22 +126,5 @@ describe('per-entry lock', () => {
     expect(store.getEntry(entry.id).bodyMd).toBe('');
     expect(store.search('AmberDeepMarker')).toEqual([]);
     expect(await store.unlockEntryBody(entry.id, 'inner')).toBe('AmberDeepMarker');
-  });
-});
-
-describe('media log', () => {
-  it('stores, lists (newest first), and deletes sealed media items', async () => {
-    await store.setup('pw pw pw');
-    store.addMedia({ kind: 'game', title: 'Hollow Journey', year: 2025, completedAt: '2026-06-01' });
-    const later = store.addMedia({ kind: 'show', title: 'Cliff Signal', completedAt: '2026-07-02' });
-
-    const items = store.listMedia();
-    expect(items.map((item) => item.title)).toEqual(['Cliff Signal', 'Hollow Journey']);
-
-    store.deleteMedia(later.id);
-    expect(store.listMedia()).toHaveLength(1);
-
-    store.lock();
-    expect(() => store.listMedia()).toThrow(/locked/);
   });
 });

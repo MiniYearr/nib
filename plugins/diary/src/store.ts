@@ -15,7 +15,7 @@ import {
   zeroKey,
   type KdfParams,
 } from './crypto';
-import type { DiaryEntryDto, DiaryStatus, MediaItemDto } from './shared';
+import type { DiaryEntryDto, DiaryStatus } from './shared';
 
 interface EntryLock {
   kdf: KdfParams;
@@ -33,8 +33,6 @@ interface EntryPayload {
   entryLock?: EntryLock;
 }
 
-type MediaPayload = Omit<MediaItemDto, 'id'>;
-
 export interface DiarySearchHit {
   id: string;
   date: string;
@@ -46,7 +44,6 @@ export interface DiarySearchHit {
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
   CREATE TABLE IF NOT EXISTS entries (id TEXT PRIMARY KEY, blob BLOB NOT NULL);
-  CREATE TABLE IF NOT EXISTS media (id TEXT PRIMARY KEY, blob BLOB NOT NULL);
 `;
 
 function toMatchQuery(input: string): string {
@@ -292,29 +289,6 @@ export class DiaryStore {
       snippet: row.snip,
       rank: row.rank,
     }));
-  }
-
-  addMedia(input: MediaPayload): MediaItemDto {
-    const id = randomUUID();
-    const blob = sealJson(this.requireKey(), input);
-    this.db.prepare('INSERT INTO media (id, blob) VALUES (?, ?)').run(id, blob);
-    return { id, ...input };
-  }
-
-  listMedia(): MediaItemDto[] {
-    const key = this.requireKey();
-    const rows = this.db.prepare('SELECT id, blob FROM media').all() as unknown as {
-      id: string;
-      blob: Uint8Array;
-    }[];
-    return rows
-      .map((row) => ({ id: row.id, ...openJson<MediaPayload>(key, row.blob) }))
-      .sort((a, b) => (a.completedAt < b.completedAt ? 1 : -1));
-  }
-
-  deleteMedia(id: string): void {
-    this.requireKey();
-    this.db.prepare('DELETE FROM media WHERE id = ?').run(id);
   }
 
   private rebuildIndex(): void {

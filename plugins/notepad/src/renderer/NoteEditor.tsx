@@ -4,10 +4,20 @@ import type { NibRecord } from '@nib/plugin-api';
 import { MODULE_ID } from '../shared';
 import { RichEditor } from './RichEditor';
 import { SourceEditor } from './SourceEditor';
-import { Toolbar } from './Toolbar';
+import { Toolbar, type ViewOptions } from './Toolbar';
 import { VersionsPanel } from './VersionsPanel';
 
 const AUTOSAVE_MS = 700;
+const VIEW_KEY = 'nib.notepad.viewOptions';
+
+function loadViewOptions(): ViewOptions {
+  try {
+    const stored = JSON.parse(localStorage.getItem(VIEW_KEY) ?? '{}') as Partial<ViewOptions>;
+    return { title: stored.title ?? false, tags: stored.tags ?? false, meta: stored.meta ?? false };
+  } catch {
+    return { title: false, tags: false, meta: false };
+  }
+}
 
 function countWords(markdown: string): number {
   const text = markdown.replace(/[#>*_`~![\]()-]/g, ' ').trim();
@@ -30,6 +40,16 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
   const [editor, setEditor] = useState<Editor | null>(null);
   const [words, setWords] = useState(() => countWords(note.bodyMd));
   const [savedAt, setSavedAt] = useState<number>(note.updatedAt);
+  const [view, setView] = useState<ViewOptions>(loadViewOptions);
+
+  const changeView = useCallback((next: ViewOptions) => {
+    setView(next);
+    try {
+      localStorage.setItem(VIEW_KEY, JSON.stringify(next));
+    } catch {
+      // ignore storage failures
+    }
+  }, []);
 
   const markdownRef = useRef(note.bodyMd);
   const titleRef = useRef(note.title);
@@ -120,44 +140,54 @@ export function NoteEditor({ note, onSaved, onDeleted }: NoteEditorProps) {
         onModeChange={setMode}
         onToggleHistory={() => setShowVersions((open) => !open)}
         historyOpen={showVersions}
+        view={view}
+        onViewChange={changeView}
       />
 
-      <div className="nib-note-head">
-        <input
-          className="nib-note-title"
-          placeholder="Untitled"
-          value={title}
-          onChange={(event) => changeTitle(event.target.value)}
-        />
+      <div className="nib-note-head" data-bare={!view.title}>
+        {view.title ? (
+          <input
+            className="nib-note-title"
+            placeholder="Untitled"
+            value={title}
+            onChange={(event) => changeTitle(event.target.value)}
+          />
+        ) : (
+          <div style={{ flex: 1 }} />
+        )}
         <button className="nib-note-delete" title="Delete note" onClick={() => void deleteNote()}>
           Delete
         </button>
       </div>
-      <div className="nib-note-meta">
-        Edited {savedLabel} · {words} {words === 1 ? 'word' : 'words'} · autosaved
-      </div>
+      {view.meta && (
+        <div className="nib-note-meta">
+          Edited {savedLabel} · {words} {words === 1 ? 'word' : 'words'} · autosaved
+        </div>
+      )}
 
-      <div className="nib-note-tags">
-        {tags.map((tag) => (
-          <span key={tag} className="nib-note-tag">
-            #{tag}
-            <button onClick={() => changeTags(tags.filter((t) => t !== tag))}>×</button>
-          </span>
-        ))}
-        <input
-          className="nib-note-tag-input"
-          placeholder="+ tag"
-          value={tagDraft}
-          onChange={(event) => setTagDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.preventDefault();
-              addTagFromDraft();
-            }
-          }}
-          onBlur={addTagFromDraft}
-        />
-      </div>
+      {view.tags && (
+        <div className="nib-note-tags">
+          {tags.map((tag) => (
+            <span key={tag} className="nib-note-tag">
+              #{tag}
+              <button onClick={() => changeTags(tags.filter((t) => t !== tag))}>×</button>
+            </span>
+          ))}
+          <input
+            className="nib-note-tag-input"
+            placeholder="+ tag"
+            value={tagDraft}
+            onChange={(event) => setTagDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                addTagFromDraft();
+              }
+            }}
+            onBlur={addTagFromDraft}
+          />
+        </div>
+      )}
 
       <div className="nib-note-body">
         {mode === 'rich' ? (

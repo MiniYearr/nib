@@ -56,6 +56,9 @@ importers:
       '@nib/plugin-media-anilist':
         specifier: workspace:*
         version: link:../../plugins/media-anilist
+      '@nib/plugin-media-openlibrary':
+        specifier: workspace:*
+        version: link:../../plugins/media-openlibrary
       '@nib/plugin-media-tvmaze':
         specifier: workspace:*
         version: link:../../plugins/media-tvmaze
@@ -181,6 +184,12 @@ importers:
         version: 43.0.0
 
   plugins/media-anilist:
+    dependencies:
+      '@nib/plugin-api':
+        specifier: workspace:*
+        version: link:../../packages/plugin-api
+
+  plugins/media-openlibrary:
     dependencies:
       '@nib/plugin-api':
         specifier: workspace:*

@@ -3,6 +3,8 @@ import type { NibRecord } from '@nib/plugin-api';
 import { CommandPalette } from './CommandPalette';
 import { Icon } from './icons';
 import { SearchOverlay } from './SearchOverlay';
+import { SettingsModal } from './SettingsModal';
+import { themeCss, useTheme } from './theme';
 import { TitleBar } from './TitleBar';
 import type { CompanionParts, ModuleHostApi, ModuleOpenRequest, RendererModule } from './module';
 
@@ -13,8 +15,8 @@ const styles = `
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #FBFAF7;
-  color: #26221D;
+  background: var(--nib-app);
+  color: var(--nib-ink);
   font-family: 'Figtree', system-ui, sans-serif;
   overflow: hidden;
 }
@@ -22,8 +24,8 @@ const styles = `
 .nib-sidebar {
   width: 236px;
   flex: none;
-  background: #F3EFE7;
-  border-right: 1px solid rgba(30, 25, 18, 0.08);
+  background: var(--nib-sidebar);
+  border-right: 1px solid var(--nib-border);
   display: flex;
   flex-direction: column;
   padding: 12px 12px 12px;
@@ -36,24 +38,26 @@ const styles = `
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 9px;
   padding: 8px 10px;
   margin-bottom: 16px;
   font-size: 12.5px;
-  color: #9B948A;
-  cursor: default;
+  color: var(--nib-faint);
+  cursor: text;
   text-align: left;
   width: 100%;
   font-family: inherit;
 }
+.nib-sidebar-search:hover { border-color: var(--nib-accent-soft); }
+.nib-main { background: var(--nib-app); }
 .nib-sidebar[data-collapsed='true'] .nib-sidebar-search { justify-content: center; padding: 8px 0; }
 .nib-sidebar-search kbd {
   margin-left: auto;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 10px;
-  color: #9B948A;
+  color: var(--nib-faint);
 }
 .nib-hide-collapsed { display: inline; }
 .nib-sidebar[data-collapsed='true'] .nib-hide-collapsed { display: none; }
@@ -63,7 +67,7 @@ const styles = `
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #A79F92;
+  color: var(--nib-section);
   white-space: nowrap;
 }
 .nib-sidebar[data-collapsed='true'] .nib-sidebar-section { visibility: hidden; height: 8px; padding: 0; }
@@ -78,20 +82,20 @@ const styles = `
   border-radius: 9px;
   font: inherit;
   font-size: 13px;
-  color: #4A443B;
+  color: var(--nib-ink-2);
   cursor: default;
   text-align: left;
   white-space: nowrap;
 }
 .nib-sidebar[data-collapsed='true'] .nib-sidebar-module { justify-content: center; padding: 9px 0; }
-.nib-sidebar-module:hover { background: rgba(30, 25, 18, 0.05); }
+.nib-sidebar-module:hover { background: var(--nib-border); }
 .nib-sidebar-module[data-active='true'] {
-  background: color-mix(in srgb, #BF6B44 14%, transparent);
-  color: #26221D;
+  background: color-mix(in srgb, var(--nib-accent) 14%, transparent);
+  color: var(--nib-ink);
   font-weight: 600;
 }
-.nib-sidebar-module[data-active='true'] .nib-sidebar-module-icon { color: #BF6B44; }
-.nib-sidebar-module-icon { color: #6B655C; display: flex; }
+.nib-sidebar-module[data-active='true'] .nib-sidebar-module-icon { color: var(--nib-accent); }
+.nib-sidebar-module-icon { color: var(--nib-ink-2); display: flex; }
 .nib-sidebar-spacer { flex: 1; }
 .nib-main { flex: 1; min-width: 0; position: relative; overflow: hidden; }
 .nib-welcome {
@@ -103,12 +107,12 @@ const styles = `
   gap: 16px;
   user-select: none;
 }
-.nib-welcome-hint { font-size: 13.5px; color: #8A8171; }
+.nib-welcome-hint { font-size: 13.5px; color: var(--nib-muted); }
 .nib-welcome-hint kbd {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
-  background: #F1EDE6;
-  border: 1px solid rgba(30, 25, 18, 0.08);
+  background: var(--nib-chip);
+  border: 1px solid var(--nib-border);
   border-radius: 5px;
   padding: 1px 5px;
 }
@@ -116,11 +120,11 @@ const styles = `
 
 function WelcomeMark() {
   return (
-    <div style={{ position: 'relative', width: 44, height: 50, borderRadius: '15px 15px 17px 17px', background: '#BF6B44' }}>
+    <div style={{ position: 'relative', width: 44, height: 50, borderRadius: '15px 15px 17px 17px', background: 'var(--nib-accent)' }}>
       <div style={{ position: 'absolute', top: 17, left: 10, width: 7, height: 9, borderRadius: 3, background: '#fff' }} />
       <div style={{ position: 'absolute', top: 17, right: 10, width: 7, height: 9, borderRadius: 3, background: '#fff' }} />
-      <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 3, height: 10, background: '#BF6B44' }} />
-      <div style={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', width: 8, height: 8, borderRadius: '50%', background: '#BF6B44' }} />
+      <div style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 3, height: 10, background: 'var(--nib-accent)' }} />
+      <div style={{ position: 'absolute', top: -15, left: '50%', transform: 'translateX(-50%)', width: 8, height: 8, borderRadius: '50%', background: 'var(--nib-accent)' }} />
     </div>
   );
 }
@@ -142,6 +146,8 @@ export function AppShell({ modules = [], companion }: AppShellProps) {
     }
   });
   const [companionOut, setCompanionOut] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((current) => {
@@ -186,9 +192,10 @@ export function AppShell({ modules = [], companion }: AppShellProps) {
 
   return (
     <>
+      <style>{themeCss}</style>
       <style>{styles}</style>
       <div className="nib-app">
-        <TitleBar onToggleSidebar={toggleCollapsed} />
+        <TitleBar onToggleSidebar={toggleCollapsed} onOpenSettings={() => setSettingsOpen(true)} />
         <div className="nib-body">
           <aside className="nib-sidebar" data-collapsed={collapsed}>
             <button
@@ -196,7 +203,7 @@ export function AppShell({ modules = [], companion }: AppShellProps) {
               onClick={() => setSearchOpen(true)}
               title="Search everything"
             >
-              <Icon name="search" size={14} style={{ color: '#9B948A' }} />
+              <Icon name="search" size={14} style={{ color: 'var(--nib-faint)' }} />
               <span className="nib-hide-collapsed">Search everything</span>
               <kbd className="nib-hide-collapsed">⌃⇧F</kbd>
             </button>
@@ -237,6 +244,12 @@ export function AppShell({ modules = [], companion }: AppShellProps) {
       </div>
       <CommandPalette />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} onOpenRecord={openRecord} />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        theme={theme}
+        onThemeChange={setTheme}
+      />
     </>
   );
 }

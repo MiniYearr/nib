@@ -11,10 +11,10 @@ const sourceTheme = EditorView.theme({
   '&': { height: '100%', fontSize: '13.5px', backgroundColor: 'transparent' },
   '.cm-content': {
     fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-    caretColor: '#BF6B44',
+    caretColor: 'var(--nib-accent)',
     padding: '16px 0',
   },
-  '.cm-cursor': { borderLeftColor: '#BF6B44' },
+  '.cm-cursor': { borderLeftColor: 'var(--nib-accent)' },
   '&.cm-focused': { outline: 'none' },
   '.cm-gutters': { display: 'none' },
   '.cm-activeLine': { backgroundColor: 'rgba(191, 107, 68, 0.05)' },

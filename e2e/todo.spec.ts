@@ -5,26 +5,26 @@ test('creates a task, renames it, and completes it', async () => {
   const { app, window } = await launchNib();
 
   await window.click('.nib-sidebar-module:has-text("To-do")');
-  await window.click('.nib-task-list-add');
+  await window.click('.nib-task-add');
 
   await expect(window.locator('.nib-task-detail')).toBeVisible();
   await window.fill('.nib-task-detail-title', 'Water the plants');
   await window.locator('.nib-task-detail-title').blur();
 
-  const row = window.locator('.nib-task-row', { hasText: 'Water the plants' });
+  const row = window.locator('.nib-task-card', { hasText: 'Water the plants' });
   await expect(row).toBeVisible();
 
   await row.locator('input[type="checkbox"]').click();
-  await expect(row.locator('.nib-task-row-title')).toHaveAttribute('data-done', 'true');
+  await expect(row.locator('.nib-task-title')).toHaveAttribute('data-done', 'true');
 
   await app.close();
 });
 
-test('a daily habit shows its occurrence and starts a streak', async () => {
+test('a daily habit shows its recurrence and starts a streak', async () => {
   const { app, window } = await launchNib();
 
   await window.click('.nib-sidebar-module:has-text("To-do")');
-  await window.click('.nib-task-list-add');
+  await window.click('.nib-task-add');
   await window.fill('.nib-task-detail-title', 'Morning stretch');
   await window.locator('.nib-task-detail-title').blur();
 
@@ -34,11 +34,11 @@ test('a daily habit shows its occurrence and starts a streak', async () => {
   await habitToggle.click();
   await expect(habitToggle).toBeChecked();
 
-  const row = window.locator('.nib-task-row', { hasText: 'Morning stretch' });
-  await expect(row.locator('.nib-task-chip', { hasText: '↻' })).toBeVisible();
+  const row = window.locator('.nib-task-card', { hasText: 'Morning stretch' });
+  await expect(row.locator('.nib-task-chip', { hasText: 'Every day' })).toBeVisible();
 
   await row.locator('input[type="checkbox"]').click();
-  await expect(row.locator('.nib-task-chip-streak')).toHaveText('🔥 1');
+  await expect(row.locator('.nib-task-chip-streak')).toHaveText('1');
 
   await app.close();
 });
@@ -47,7 +47,7 @@ test('tasks and search work across modules', async () => {
   const { app, window } = await launchNib();
 
   await window.click('.nib-sidebar-module:has-text("To-do")');
-  await window.click('.nib-task-list-add');
+  await window.click('.nib-task-add');
   await window.fill('.nib-task-detail-title', 'Refill the aquarium');
   await window.locator('.nib-task-detail-title').blur();
 

@@ -9,8 +9,8 @@ const styles = `
   align-items: center;
   gap: 10px;
   padding: 0 4px 0 10px;
-  background: #EFEAE1;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.09);
+  background: var(--nib-titlebar);
+  border-bottom: 1px solid var(--nib-border);
   -webkit-app-region: drag;
   user-select: none;
 }
@@ -22,7 +22,7 @@ const styles = `
   align-items: center;
   justify-content: center;
   cursor: default;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   padding: 0;
 }
 .nib-titlebar-toggle {
@@ -30,19 +30,19 @@ const styles = `
   height: 26px;
   border-radius: 7px;
 }
-.nib-titlebar-toggle:hover { background: rgba(30, 25, 18, 0.07); color: #26221D; }
+.nib-titlebar-toggle:hover { background: var(--nib-border); color: var(--nib-ink); }
 .nib-titlebar-logo {
   width: 20px;
   height: 20px;
   border-radius: 6px;
-  background: #BF6B44;
+  background: var(--nib-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
 }
-.nib-titlebar-name { font-size: 12.5px; font-weight: 600; color: #26221D; }
-.nib-titlebar-workspace { font-size: 12px; color: #9B948A; }
+.nib-titlebar-name { font-size: 12.5px; font-weight: 600; color: var(--nib-ink); }
+.nib-titlebar-workspace { font-size: 12px; color: var(--nib-faint); }
 .nib-titlebar-spacer { flex: 1; }
 .nib-titlebar-controls { display: flex; align-items: center; -webkit-app-region: no-drag; }
 .nib-titlebar-control {
@@ -53,19 +53,24 @@ const styles = `
   justify-content: center;
   border: none;
   background: transparent;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
 }
-.nib-titlebar-control:hover { background: rgba(30, 25, 18, 0.08); color: #26221D; }
-.nib-titlebar-control[data-danger='true']:hover { background: #C0533B; color: #fff; }
+.nib-titlebar-control:hover { background: var(--nib-border); color: var(--nib-ink); }
+.nib-titlebar-control[data-danger='true']:hover { background: var(--nib-danger); color: #fff; }
 `;
 
 export interface TitleBarProps {
   workspaceLabel?: string;
   onToggleSidebar(): void;
+  onOpenSettings(): void;
 }
 
-export function TitleBar({ workspaceLabel = "your workspace", onToggleSidebar }: TitleBarProps) {
+export function TitleBar({
+  workspaceLabel = 'your workspace',
+  onToggleSidebar,
+  onOpenSettings,
+}: TitleBarProps) {
   const [maximized, setMaximized] = useState(false);
 
   useEffect(() => {
@@ -91,6 +96,14 @@ export function TitleBar({ workspaceLabel = "your workspace", onToggleSidebar }:
       <span className="nib-titlebar-name">Nib</span>
       <span className="nib-titlebar-workspace">— {workspaceLabel}</span>
       <div className="nib-titlebar-spacer" />
+      <button
+        className="nib-titlebar-btn nib-titlebar-toggle"
+        title="Customize Nib"
+        onClick={onOpenSettings}
+        style={{ width: 34, height: 28, marginRight: 4 }}
+      >
+        <Icon name="sliders-horizontal" size={15} />
+      </button>
       <div className="nib-titlebar-controls">
         <button
           className="nib-titlebar-control"

@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ModuleViewProps } from '@nib/shell';
-import { MOODS, type DiaryEntryDto, type DiaryStatus } from '../shared';
-import { diaryApi, todayStr } from './api';
-import { EntryEditor } from './EntryEditor';
+import { Icon, type ModuleViewProps } from '@nib/shell';
+import {
+  BOOK_NOTE_TYPE,
+  BOOK_TYPE,
+  DIARY_TYPE,
+  MEDIA_TYPE,
+  type DiarySection,
+  type DiaryStatus,
+} from '../shared';
+import { diaryApi } from './api';
+import { BookNotes } from './BookNotes';
+import { EntriesSection } from './EntriesSection';
 import { MediaShelf } from './MediaShelf';
 
 const styles = `
@@ -23,23 +31,23 @@ const styles = `
   font-size: 24px;
 }
 .nib-diary-gate h2 { margin: 0; font-size: 19px; letter-spacing: -0.015em; }
-.nib-diary-gate p { margin: 0; font-size: 12.5px; color: #8A8171; max-width: 40ch; text-align: center; line-height: 1.5; }
+.nib-diary-gate p { margin: 0; font-size: 12.5px; color: var(--nib-muted); max-width: 40ch; text-align: center; line-height: 1.5; }
 .nib-diary-gate input {
   width: 260px;
   font: inherit;
   font-size: 13.5px;
   padding: 9px 12px;
-  border: 1px solid rgba(30, 25, 18, 0.14);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 9px;
-  background: #FBFAF7;
+  background: var(--nib-paper);
   outline: none;
   text-align: center;
 }
-.nib-diary-gate input:focus { border-color: #8A6BC8; }
+.nib-diary-gate input:focus { border-color: var(--nib-diary); }
 .nib-diary-gate button {
   width: 260px;
   border: none;
-  background: #8A6BC8;
+  background: var(--nib-diary);
   color: #fff;
   font: inherit;
   font-size: 13px;
@@ -49,13 +57,13 @@ const styles = `
   cursor: default;
 }
 .nib-diary-gate button:disabled { opacity: 0.5; }
-.nib-diary-error { color: #A54D3B; font-size: 12px; min-height: 16px; }
+.nib-diary-error { color: var(--nib-danger); font-size: 12px; min-height: 16px; }
 .nib-diary-header {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(30, 25, 18, 0.08);
+  border-bottom: 1px solid var(--nib-border);
   flex: none;
 }
 .nib-diary-tab {
@@ -65,35 +73,35 @@ const styles = `
   font-size: 12.5px;
   padding: 6px 12px;
   border-radius: 8px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
 }
-.nib-diary-tab[data-active='true'] { background: rgba(138, 107, 200, 0.14); color: #26221D; font-weight: 600; }
+.nib-diary-tab[data-active='true'] { background: rgba(138, 107, 200, 0.14); color: var(--nib-ink); font-weight: 600; }
 .nib-diary-lock-btn {
   margin-left: auto;
-  border: 1px solid rgba(30, 25, 18, 0.1);
+  border: 1px solid var(--nib-border-strong);
   background: transparent;
   font: inherit;
   font-size: 11.5px;
   padding: 5px 10px;
   border-radius: 8px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
 }
-.nib-diary-lock-btn:hover { background: rgba(138, 107, 200, 0.1); color: #26221D; }
+.nib-diary-lock-btn:hover { background: rgba(138, 107, 200, 0.1); color: var(--nib-ink); }
 .nib-diary-body { flex: 1; display: flex; min-height: 0; }
 .nib-diary-list {
   width: 250px;
   flex: none;
   overflow-y: auto;
-  border-right: 1px solid rgba(30, 25, 18, 0.08);
+  border-right: 1px solid var(--nib-border);
   padding: 10px 10px 30px;
 }
 .nib-diary-new {
   width: 100%;
   border: 1px dashed rgba(138, 107, 200, 0.5);
   background: transparent;
-  color: #6B4FA8;
+  color: var(--nib-diary);
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -121,12 +129,12 @@ const styles = `
 .nib-diary-item-text { min-width: 0; flex: 1; }
 .nib-diary-item-title {
   font-size: 12.5px;
-  color: #26221D;
+  color: var(--nib-ink);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.nib-diary-item-date { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #A79F92; }
+.nib-diary-item-date { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: var(--nib-section); }
 .nib-diary-item-lock { flex: none; font-size: 11px; }
 .nib-diary-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; }
 .nib-diary-otd {
@@ -142,14 +150,14 @@ const styles = `
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8A6BC8;
+  color: var(--nib-diary);
 }
 .nib-diary-otd-chip {
   border: 1px solid rgba(138, 107, 200, 0.35);
   background: rgba(138, 107, 200, 0.08);
   font: inherit;
   font-size: 11.5px;
-  color: #4A443B;
+  color: var(--nib-ink-2);
   padding: 4px 10px;
   border-radius: 999px;
   cursor: default;
@@ -160,7 +168,7 @@ const styles = `
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8A8171;
+  color: var(--nib-muted);
   font-size: 13px;
 }
 .nib-entry { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 40px; flex: 1; }
@@ -168,11 +176,11 @@ const styles = `
 .nib-entry-meta input[type='date'] {
   font: inherit;
   font-size: 12px;
-  border: 1px solid rgba(30, 25, 18, 0.1);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 7px;
-  background: #FBFAF7;
+  background: var(--nib-paper);
   padding: 4px 8px;
-  color: #26221D;
+  color: var(--nib-ink);
 }
 .nib-entry-moods { display: flex; gap: 3px; }
 .nib-entry-mood {
@@ -189,16 +197,16 @@ const styles = `
 .nib-entry-mood:hover { filter: none; opacity: 1; }
 .nib-entry-actions { margin-left: auto; display: flex; gap: 8px; }
 .nib-entry-action {
-  border: 1px solid rgba(30, 25, 18, 0.1);
+  border: 1px solid var(--nib-border-strong);
   background: transparent;
   font: inherit;
   font-size: 11px;
   padding: 4px 9px;
   border-radius: 7px;
-  color: #6B655C;
+  color: var(--nib-ink-2);
   cursor: default;
 }
-.nib-entry-action:hover { background: rgba(30, 25, 18, 0.05); color: #26221D; }
+.nib-entry-action:hover { background: var(--nib-border); color: var(--nib-ink); }
 .nib-entry-title {
   border: none;
   outline: none;
@@ -207,9 +215,9 @@ const styles = `
   font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.015em;
-  color: #26221D;
+  color: var(--nib-ink);
 }
-.nib-entry-title::placeholder { color: #C9C2B4; }
+.nib-entry-title::placeholder { color: var(--nib-placeholder); }
 .nib-entry-body {
   flex: 1;
   min-height: 260px;
@@ -219,7 +227,7 @@ const styles = `
   font: inherit;
   font-size: 14px;
   line-height: 1.65;
-  color: #26221D;
+  color: var(--nib-ink);
   resize: none;
 }
 .nib-entry-sealed {
@@ -233,14 +241,14 @@ const styles = `
   border-radius: 12px;
   padding: 30px;
 }
-.nib-entry-sealed p { margin: 0; font-size: 12.5px; color: #8A8171; }
+.nib-entry-sealed p { margin: 0; font-size: 12.5px; color: var(--nib-muted); }
 .nib-entry-sealed input {
   font: inherit;
   font-size: 12.5px;
   padding: 7px 10px;
-  border: 1px solid rgba(30, 25, 18, 0.14);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 8px;
-  background: #FBFAF7;
+  background: var(--nib-paper);
   outline: none;
   text-align: center;
   width: 220px;
@@ -248,7 +256,7 @@ const styles = `
 .nib-entry-sealed-actions { display: flex; gap: 8px; }
 .nib-entry-sealed button {
   border: none;
-  background: #8A6BC8;
+  background: var(--nib-diary);
   color: #fff;
   font: inherit;
   font-size: 12px;
@@ -257,14 +265,14 @@ const styles = `
   border-radius: 8px;
   cursor: default;
 }
-.nib-entry-sealed button[data-secondary='true'] { background: transparent; color: #6B4FA8; border: 1px solid rgba(138, 107, 200, 0.4); }
+.nib-entry-sealed button[data-secondary='true'] { background: transparent; color: var(--nib-diary); border: 1px solid rgba(138, 107, 200, 0.4); }
 .nib-entry-revealed {
   flex: 1;
   white-space: pre-wrap;
   font: inherit;
   font-size: 14px;
   line-height: 1.65;
-  color: #26221D;
+  color: var(--nib-ink);
   background: rgba(138, 107, 200, 0.05);
   border-radius: 12px;
   padding: 16px 18px;
@@ -275,9 +283,9 @@ const styles = `
   font: inherit;
   font-size: 12px;
   padding: 5px 9px;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 7px;
-  background: #FBFAF7;
+  background: var(--nib-paper);
   outline: none;
   width: 180px;
 }
@@ -287,9 +295,9 @@ const styles = `
   font: inherit;
   font-size: 13px;
   padding: 7px 11px;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 9px;
-  background: #FBFAF7;
+  background: var(--nib-paper);
   outline: none;
   width: 260px;
 }
@@ -297,21 +305,21 @@ const styles = `
   font: inherit;
   font-size: 12px;
   padding: 7px 11px;
-  border: 1px solid rgba(30, 25, 18, 0.12);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 9px;
-  background: #FBFAF7;
-  color: #26221D;
+  background: var(--nib-paper);
+  color: var(--nib-ink);
   cursor: default;
 }
-.nib-media-add button { background: #BF6B44; border-color: #BF6B44; color: #fff; font-weight: 600; }
-.nib-media-add button[data-secondary='true'] { background: transparent; border-color: rgba(30,25,18,0.12); color: #6B655C; font-weight: 400; }
+.nib-media-add button { background: var(--nib-accent); border-color: var(--nib-accent); color: #fff; font-weight: 600; }
+.nib-media-add button[data-secondary='true'] { background: transparent; border-color: var(--nib-border-strong); color: var(--nib-ink-2); font-weight: 400; }
 .nib-media-hits { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
 .nib-media-hit {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid rgba(30, 25, 18, 0.1);
-  background: #FBFAF7;
+  border: 1px solid var(--nib-border-strong);
+  background: var(--nib-paper);
   font: inherit;
   font-size: 12.5px;
   padding: 8px 12px;
@@ -324,20 +332,20 @@ const styles = `
   margin-left: auto;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 9.5px;
-  color: #6B7C9B;
+  color: var(--nib-info);
   background: rgba(107, 124, 155, 0.12);
   padding: 2px 6px;
   border-radius: 5px;
 }
 .nib-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
 .nib-media-card {
-  background: #FBFAF7;
-  border: 1px solid rgba(30, 25, 18, 0.1);
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border-strong);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
 }
-.nib-media-cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; display: block; background: #F1EDE6; }
+.nib-media-cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; display: block; background: var(--nib-chip); }
 .nib-media-cover-fallback {
   width: 100%;
   aspect-ratio: 2 / 3;
@@ -345,11 +353,11 @@ const styles = `
   align-items: center;
   justify-content: center;
   font-size: 30px;
-  background: #F1EDE6;
+  background: var(--nib-chip);
 }
 .nib-media-card-body { padding: 8px 10px 10px; }
-.nib-media-card-title { font-size: 12px; font-weight: 600; color: #26221D; line-height: 1.3; }
-.nib-media-card-meta { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: #8A8171; margin-top: 3px; }
+.nib-media-card-title { font-size: 12px; font-weight: 600; color: var(--nib-ink); line-height: 1.3; }
+.nib-media-card-meta { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; color: var(--nib-muted); margin-top: 3px; }
 .nib-media-card-remove {
   position: absolute;
   top: 6px;
@@ -365,139 +373,165 @@ const styles = `
   opacity: 0;
 }
 .nib-media-card:hover .nib-media-card-remove { opacity: 1; }
+.nib-diary-home { padding: 30px 36px 40px; overflow-y: auto; height: 100%; }
+.nib-diary-home-title { font-size: 27px; font-weight: 800; letter-spacing: -0.02em; color: var(--nib-ink); }
+.nib-diary-home-sub { font-size: 13.5px; color: var(--nib-muted); margin: 3px 0 24px; }
+.nib-diary-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 900px; }
+.nib-diary-card {
+  background: var(--nib-paper);
+  border: 1px solid var(--nib-border);
+  border-radius: 15px;
+  padding: 22px;
+  text-align: left;
+  cursor: default;
+  min-height: 156px;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+}
+.nib-diary-card:hover { border-color: var(--nib-border-strong); }
+.nib-diary-card-top { display: flex; align-items: center; gap: 13px; margin-bottom: 14px; }
+.nib-diary-card-icon { width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; flex: none; }
+.nib-diary-card-title { font-size: 17px; font-weight: 700; color: var(--nib-ink); }
+.nib-diary-card-desc { font-size: 12px; color: var(--nib-muted); }
+.nib-diary-card-arrow { margin-left: auto; color: var(--nib-faint); }
+.nib-diary-card-foot { margin-top: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: var(--nib-muted); display: flex; gap: 12px; align-items: center; }
+.nib-diary-card-add {
+  border: 1.5px dashed var(--nib-border-strong);
+  background: var(--nib-surface);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--nib-muted);
+}
+.nib-diary-crumb { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--nib-border); flex: none; }
+.nib-diary-crumb-back { border: none; background: transparent; font: inherit; cursor: default; color: var(--nib-ink-2); display: flex; align-items: center; gap: 5px; font-size: 13px; }
+.nib-diary-crumb-current { font-size: 13px; font-weight: 600; color: var(--nib-ink); }
+.nib-diary-crumb-lock { margin-left: auto; border: 1px solid var(--nib-border-strong); background: transparent; border-radius: 8px; padding: 5px 11px; font: inherit; font-size: 11.5px; color: var(--nib-muted); cursor: default; }
+.nib-diary-section { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 `;
 
-function Gate({
-  mode,
-  onDone,
-}: {
-  mode: 'setup' | 'unlock';
-  onDone(): void;
-}) {
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  const submit = async () => {
-    setError('');
-    if (mode === 'setup') {
-      if (password.length < 4) return setError('Passphrase must be at least 4 characters');
-      if (password !== confirm) return setError('Passphrases do not match');
-      setBusy(true);
-      try {
-        await diaryApi.setup(password);
-        onDone();
-      } catch (cause) {
-        setError(cause instanceof Error ? cause.message : 'Setup failed');
-      } finally {
-        setBusy(false);
-      }
-    } else {
-      setBusy(true);
-      try {
-        const ok = await diaryApi.unlock(password);
-        if (ok) onDone();
-        else setError('Wrong passphrase');
-      } finally {
-        setBusy(false);
-        setPassword('');
-      }
-    }
-  };
-
-  return (
-    <div className="nib-diary-gate">
-      <div className="nib-diary-gate-icon">🔒</div>
-      <h2>{mode === 'setup' ? 'Set up your diary' : 'Diary is locked'}</h2>
-      <p>
-        {mode === 'setup'
-          ? 'Everything you write is encrypted on this device with a passphrase only you know. There is no recovery if you forget it.'
-          : 'Enter your passphrase to unlock. Entries stay invisible to search and the rest of Nib while locked.'}
-      </p>
-      <input
-        type="password"
-        placeholder="Passphrase"
-        value={password}
-        autoFocus
-        onChange={(event) => setPassword(event.target.value)}
-        onKeyDown={(event) => event.key === 'Enter' && mode === 'unlock' && void submit()}
-      />
-      {mode === 'setup' && (
-        <input
-          type="password"
-          placeholder="Repeat passphrase"
-          value={confirm}
-          onChange={(event) => setConfirm(event.target.value)}
-          onKeyDown={(event) => event.key === 'Enter' && void submit()}
-        />
-      )}
-      <div className="nib-diary-error">{error}</div>
-      <button disabled={busy} onClick={() => void submit()}>
-        {mode === 'setup' ? 'Create diary' : 'Unlock'}
-      </button>
-    </div>
-  );
-}
+const SECTION_LABEL: Record<Exclude<DiarySection, 'home'>, string> = {
+  entries: 'Entries',
+  media: 'Media log',
+  books: 'Book notes',
+};
 
 export function DiaryView({ openRequest }: ModuleViewProps) {
-  const [status, setStatus] = useState<DiaryStatus | 'loading'>('loading');
-  const [entries, setEntries] = useState<DiaryEntryDto[]>([]);
-  const [onThisDay, setOnThisDay] = useState<DiaryEntryDto[]>([]);
-  const [selectedId, setSelectedId] = useState<string>();
-  const [tab, setTab] = useState<'journal' | 'media'>('journal');
+  const [section, setSection] = useState<DiarySection>('home');
+  const [status, setStatus] = useState<DiaryStatus>('locked');
+  const [entryCount, setEntryCount] = useState<number | null>(null);
+  const [mediaCount, setMediaCount] = useState(0);
+  const [bookCount, setBookCount] = useState(0);
 
-  const refresh = useCallback(async () => {
-    setEntries(await diaryApi.list());
-    setOnThisDay(await diaryApi.onThisDay());
+  const refreshCounts = useCallback(async () => {
+    setEntryCount(await diaryApi.entryCount());
+    setMediaCount((await diaryApi.mediaList()).length);
+    setBookCount((await diaryApi.booksList()).length);
   }, []);
 
   useEffect(() => {
-    void diaryApi.status().then((current) => {
-      setStatus(current);
-      if (current === 'unlocked') void refresh();
-    });
+    void diaryApi.status().then(setStatus);
+    void refreshCounts();
     if (!window.nib) return;
     return window.nib.events.on('nib.diary.status', (event) => {
-      const { status: next } = event.payload as { status: DiaryStatus };
+      const next = (event.payload as { status: DiaryStatus }).status;
       setStatus(next);
-      if (next === 'unlocked') void refresh();
-      else {
-        setEntries([]);
-        setOnThisDay([]);
-        setSelectedId(undefined);
-      }
+      void refreshCounts();
     });
-  }, [refresh]);
+  }, [refreshCounts]);
 
+  // A global-search hit routed here jumps to the section that owns its type.
   useEffect(() => {
-    if (openRequest && status === 'unlocked') {
-      setTab('journal');
-      setSelectedId(openRequest.record.id);
-    }
-  }, [openRequest, status]);
+    if (!openRequest) return;
+    const type = openRequest.record.type;
+    if (type === DIARY_TYPE) setSection('entries');
+    else if (type === MEDIA_TYPE) setSection('media');
+    else if (type === BOOK_TYPE || type === BOOK_NOTE_TYPE) setSection('books');
+  }, [openRequest]);
 
-  const newEntry = async () => {
-    const entry = await diaryApi.create({ date: todayStr() });
-    await refresh();
-    setSelectedId(entry.id);
-  };
-
-  const selected = entries.find((entry) => entry.id === selectedId);
-
-  if (status === 'loading') return <div className="nib-diary" />;
-
-  if (status !== 'unlocked') {
+  if (section === 'home') {
     return (
       <div className="nib-diary">
         <style>{styles}</style>
-        <Gate
-          mode={status === 'uninitialized' ? 'setup' : 'unlock'}
-          onDone={() => {
-            setStatus('unlocked');
-            void refresh();
-          }}
-        />
+        <div className="nib-diary-home">
+          <div className="nib-diary-home-title">Your diary</div>
+          <div className="nib-diary-home-sub">
+            Pick a section. Only your journal entries are locked behind a passphrase.
+          </div>
+          <div className="nib-diary-cards">
+            <button className="nib-diary-card" onClick={() => setSection('entries')}>
+              <div className="nib-diary-card-top">
+                <span
+                  className="nib-diary-card-icon"
+                  style={{ background: 'color-mix(in srgb, var(--nib-diary) 14%, transparent)' }}
+                >
+                  <Icon name="notebook-pen" size={22} style={{ color: 'var(--nib-diary)' }} />
+                </span>
+                <span style={{ flex: 1 }}>
+                  <div className="nib-diary-card-title">Entries</div>
+                  <div className="nib-diary-card-desc">Your encrypted daily journal</div>
+                </span>
+                <Icon name="arrow-up-right" size={18} className="nib-diary-card-arrow" />
+              </div>
+              <div className="nib-diary-card-foot">
+                {status === 'uninitialized'
+                  ? 'not set up yet'
+                  : entryCount === null
+                    ? '🔒 locked'
+                    : `${entryCount} ${entryCount === 1 ? 'entry' : 'entries'}`}
+              </div>
+            </button>
+
+            <button className="nib-diary-card" onClick={() => setSection('media')}>
+              <div className="nib-diary-card-top">
+                <span
+                  className="nib-diary-card-icon"
+                  style={{ background: 'var(--nib-accent-soft)' }}
+                >
+                  <Icon name="library" size={22} style={{ color: 'var(--nib-accent)' }} />
+                </span>
+                <span style={{ flex: 1 }}>
+                  <div className="nib-diary-card-title">Media log</div>
+                  <div className="nib-diary-card-desc">Games, shows, anime</div>
+                </span>
+                <Icon name="arrow-up-right" size={18} className="nib-diary-card-arrow" />
+              </div>
+              <div className="nib-diary-card-foot">
+                {mediaCount} {mediaCount === 1 ? 'title' : 'titles'} · covers auto-fetched
+              </div>
+            </button>
+
+            <button className="nib-diary-card" onClick={() => setSection('books')}>
+              <div className="nib-diary-card-top">
+                <span
+                  className="nib-diary-card-icon"
+                  style={{ background: 'color-mix(in srgb, var(--nib-book) 14%, transparent)' }}
+                >
+                  <Icon name="book-marked" size={22} style={{ color: 'var(--nib-book)' }} />
+                </span>
+                <span style={{ flex: 1 }}>
+                  <div className="nib-diary-card-title">Book notes</div>
+                  <div className="nib-diary-card-desc">Highlights &amp; reflections</div>
+                </span>
+                <Icon name="arrow-up-right" size={18} className="nib-diary-card-arrow" />
+              </div>
+              <div className="nib-diary-card-foot">
+                {bookCount} {bookCount === 1 ? 'book' : 'books'} · in shared search
+              </div>
+            </button>
+
+            <div className="nib-diary-card nib-diary-card-add">
+              <Icon name="plus" size={22} style={{ color: 'var(--nib-accent)' }} />
+              <div className="nib-diary-card-title" style={{ marginTop: 10 }}>
+                Add a section
+              </div>
+              <div className="nib-diary-card-desc" style={{ maxWidth: '28ch' }}>
+                Letters, dreams, a gratitude log — install one from the plugin library
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -505,75 +539,24 @@ export function DiaryView({ openRequest }: ModuleViewProps) {
   return (
     <div className="nib-diary">
       <style>{styles}</style>
-      <div className="nib-diary-header">
-        <button className="nib-diary-tab" data-active={tab === 'journal'} onClick={() => setTab('journal')}>
-          Journal
+      <div className="nib-diary-crumb">
+        <button className="nib-diary-crumb-back" onClick={() => setSection('home')}>
+          <Icon name="chevron-left" size={15} />
+          Diary
         </button>
-        <button className="nib-diary-tab" data-active={tab === 'media'} onClick={() => setTab('media')}>
-          Media log
-        </button>
-        <button className="nib-diary-lock-btn" onClick={() => void diaryApi.lock()}>
-          🔒 Lock
-        </button>
+        <Icon name="chevron-right" size={13} style={{ color: 'var(--nib-faint)' }} />
+        <span className="nib-diary-crumb-current">{SECTION_LABEL[section]}</span>
+        {section === 'entries' && status === 'unlocked' && (
+          <button className="nib-diary-crumb-lock" onClick={() => void diaryApi.lock()}>
+            🔒 Lock
+          </button>
+        )}
       </div>
-
-      {tab === 'journal' ? (
-        <div className="nib-diary-body">
-          <div className="nib-diary-list">
-            <button className="nib-diary-new" onClick={() => void newEntry()}>
-              + New entry
-            </button>
-            {entries.map((entry) => (
-              <button
-                key={entry.id}
-                className="nib-diary-item"
-                data-active={entry.id === selectedId}
-                onClick={() => setSelectedId(entry.id)}
-              >
-                <span className="nib-diary-item-mood">
-                  {MOODS.find((mood) => mood.id === entry.mood)?.emoji ?? '·'}
-                </span>
-                <span className="nib-diary-item-text">
-                  <div className="nib-diary-item-title">{entry.title || 'Untitled'}</div>
-                  <div className="nib-diary-item-date">{entry.date}</div>
-                </span>
-                {entry.locked && <span className="nib-diary-item-lock">🔐</span>}
-              </button>
-            ))}
-          </div>
-          <div className="nib-diary-main">
-            {onThisDay.length > 0 && (
-              <div className="nib-diary-otd">
-                <span className="nib-diary-otd-label">On this day</span>
-                {onThisDay.map((entry) => (
-                  <button
-                    key={entry.id}
-                    className="nib-diary-otd-chip"
-                    onClick={() => setSelectedId(entry.id)}
-                  >
-                    {entry.date.slice(0, 4)} · {entry.title || 'Untitled'}
-                  </button>
-                ))}
-              </div>
-            )}
-            {selected ? (
-              <EntryEditor
-                key={selected.id}
-                entry={selected}
-                onChanged={refresh}
-                onDeleted={() => {
-                  setSelectedId(undefined);
-                  void refresh();
-                }}
-              />
-            ) : (
-              <div className="nib-diary-empty">Select an entry or write a new one</div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <MediaShelf />
-      )}
+      <div className="nib-diary-section">
+        {section === 'entries' && <EntriesSection openRequest={openRequest} />}
+        {section === 'media' && <MediaShelf />}
+        {section === 'books' && <BookNotes />}
+      </div>
     </div>
   );
 }

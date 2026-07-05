@@ -1,5 +1,10 @@
 export const MODULE_ID = 'nib.diary';
 export const DIARY_TYPE = 'diary-entry';
+export const MEDIA_TYPE = 'media-item';
+export const BOOK_TYPE = 'book';
+export const BOOK_NOTE_TYPE = 'book-note';
+
+export type DiarySection = 'home' | 'entries' | 'media' | 'books';
 
 export const MOODS = [
   { id: 'great', emoji: '😄', label: 'Great' },
@@ -49,6 +54,42 @@ export interface MediaLookupHit {
   url?: string;
 }
 
+export type BookStatus = 'reading' | 'finished' | 'wishlist';
+
+export interface BookDto {
+  id: string;
+  title: string;
+  author?: string;
+  year?: number;
+  pages?: number;
+  coverDataUri?: string;
+  status: BookStatus;
+  tags: string[];
+  noteCount: number;
+  createdAt: number;
+}
+
+export interface BookNoteDto {
+  id: string;
+  bookId: string;
+  /** Optional page/location the highlight/note is about. */
+  page?: number;
+  /** A verbatim highlight/quote (rendered italic), if this is a highlight. */
+  highlight?: string;
+  /** The user's own note/reflection. */
+  note: string;
+  tags: string[];
+  createdAt: number;
+}
+
+export interface BookLookupHit {
+  title: string;
+  author?: string;
+  year?: number;
+  pages?: number;
+  coverUrl?: string;
+}
+
 /** IPC channels the diary's main side registers; renderer calls via window.nib.invoke. */
 export const DIARY_CHANNELS = {
   status: 'nib.diary:status',
@@ -63,8 +104,20 @@ export const DIARY_CHANNELS = {
   setEntryLock: 'nib.diary:setEntryLock',
   unlockEntryBody: 'nib.diary:unlockEntryBody',
   removeEntryLock: 'nib.diary:removeEntryLock',
+  entryCount: 'nib.diary:entryCount',
   mediaList: 'nib.diary:media.list',
   mediaAdd: 'nib.diary:media.add',
   mediaRemove: 'nib.diary:media.remove',
   mediaLookup: 'nib.diary:media.lookup',
+} as const;
+
+export const BOOK_CHANNELS = {
+  list: 'nib.diary:books.list',
+  add: 'nib.diary:books.add',
+  update: 'nib.diary:books.update',
+  remove: 'nib.diary:books.remove',
+  lookup: 'nib.diary:books.lookup',
+  notesList: 'nib.diary:books.notes.list',
+  noteAdd: 'nib.diary:books.notes.add',
+  noteRemove: 'nib.diary:books.notes.remove',
 } as const;

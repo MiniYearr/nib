@@ -3,12 +3,20 @@ import type { Editor } from '@tiptap/core';
 import { useEditorState } from '@tiptap/react';
 import { Icon } from '@nib/shell';
 
+export interface ViewOptions {
+  title: boolean;
+  tags: boolean;
+  meta: boolean;
+}
+
 export interface ToolbarProps {
   editor: Editor | null;
   mode: 'rich' | 'source';
   onModeChange(mode: 'rich' | 'source'): void;
   onToggleHistory(): void;
   historyOpen: boolean;
+  view: ViewOptions;
+  onViewChange(view: ViewOptions): void;
 }
 
 interface Flags {
@@ -41,9 +49,18 @@ const EMPTY_FLAGS: Flags = {
   link: false,
 };
 
-export function Toolbar({ editor, mode, onModeChange, onToggleHistory, historyOpen }: ToolbarProps) {
+export function Toolbar({
+  editor,
+  mode,
+  onModeChange,
+  onToggleHistory,
+  historyOpen,
+  view,
+  onViewChange,
+}: ToolbarProps) {
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkValue, setLinkValue] = useState('');
+  const [viewOpen, setViewOpen] = useState(false);
 
   const flags =
     useEditorState({
@@ -204,6 +221,40 @@ export function Toolbar({ editor, mode, onModeChange, onToggleHistory, historyOp
         <Icon name="history" size={14} />
         History
       </button>
+      <div className="nib-tb-more-wrap">
+        <button
+          className="nib-tb-btn"
+          data-active={viewOpen}
+          title="View options"
+          onClick={() => setViewOpen((open) => !open)}
+        >
+          <Icon name="more-horizontal" size={16} />
+        </button>
+        {viewOpen && (
+          <>
+            <div className="nib-tb-more-scrim" onClick={() => setViewOpen(false)} />
+            <div className="nib-tb-more">
+              <div className="nib-tb-more-label">Show on page</div>
+              {(
+                [
+                  ['title', 'Title'],
+                  ['tags', 'Tags'],
+                  ['meta', 'Info line'],
+                ] as const
+              ).map(([key, label]) => (
+                <label key={key} className="nib-tb-more-item">
+                  <input
+                    type="checkbox"
+                    checked={view[key]}
+                    onChange={(event) => onViewChange({ ...view, [key]: event.target.checked })}
+                  />
+                  {label}
+                </label>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
